@@ -11,7 +11,7 @@ This is a project to find out whether it is feasible for RON to be a backend for
 Which RON features can a Jackson generator support?
 
 - [x] True primitives (not string-wrapped)
-  - `writeBoolean(bool)`
+  - `writeBoolean(boolean)`
   - `writeNumber(int)`
   - `writeNumber(long)`
   - `writeNumber(double)`
@@ -25,15 +25,30 @@ Which RON features can a Jackson generator support?
 - [ ] Structs (optional names, field names not quoted)
 - [ ] Tuples
 
-Questions:
-
-- How can we support the missing RON features in a custom Jackson generator? Can we do it if we make a custom ObjectMapper?
-- What about field ordering?
-
 ### Parser
 
 Which RON features can a Jackson parser support?
 
+- [x] True primitives
+  - `getFloatValue(): float`
+  - `getIntValue(): int`
+  - `getLongValue(): long`
+  - `getDoubleValue(): double`
+  - `getBooleanValue(): boolean`
+- [x] Strings
+  - `getText(): String`
+  - `getTextCharacters(): char[]` 
 - [x] Comments (we must ignore them in the parser)
 - [x] Trailing commas (we must ignore them in the parser)
-- [ ] TODO add others
+- [x] Maps
+- [x] Arrays
+- [ ] Enums
+- [ ] Structs
+- [ ] Tuples
+
+### Questions
+
+- Structs: Can we get support for them if we make a custom ObjectMapper?
+- Enums: Can we lean on `@JsonFormat` or custom `StdSerializer` implementations to read/write enums?
+- Tuples: How to deal with them?
+- What about RON field ordering?
