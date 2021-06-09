@@ -34,6 +34,20 @@ public class RONGenerator extends GeneratorBase {
 
     }
 
+    /**
+     * Write the '(' which is the start of a tuple or struct.
+     */
+    public void writeStartTuple() throws IOException {
+
+    }
+
+    /**
+     * Write the ')' which is the end of a tuple or struct.
+     */
+    public void writeEndTuple() throws IOException {
+
+    }
+
     @Override
     public void writeFieldName(String s) throws IOException {
 
@@ -51,7 +65,7 @@ public class RONGenerator extends GeneratorBase {
 
     @Override
     public void writeRawUTF8String(byte[] bytes, int i, int i1) throws IOException {
-
+        _reportUnsupportedOperation();
     }
 
     @Override
@@ -142,5 +156,9 @@ public class RONGenerator extends GeneratorBase {
     @Override
     protected void _verifyValueWrite(String s) throws IOException {
 
+    }
+
+    protected void _reportUnsupportedOperation() {
+        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
     }
 }
