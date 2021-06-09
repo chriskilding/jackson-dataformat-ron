@@ -95,7 +95,7 @@ public class RONGenerator extends GeneratorBase {
 
     @Override
     public void writeBinary(Base64Variant base64Variant, byte[] bytes, int i, int i1) throws IOException {
-
+        _reportUnsupportedOperation();
     }
 
     @Override

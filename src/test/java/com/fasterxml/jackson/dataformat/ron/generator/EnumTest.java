@@ -8,17 +8,21 @@ import static org.junit.Assert.assertTrue;
 public class EnumTest extends ContainerTest {
 
     @Override
-    public void empty() {
+    public void testEmpty() {
         assertEquals("Foo", "");
     }
 
     @Override
-    public void one() {
+    public void testOne() {
         assertEquals("Foo(1)", "");
     }
 
     @Override
-    public void multiple() {
+    public void testMultiple() {
         assertEquals("Foo(1,2)", "");
+    }
+
+    public enum Example {
+        Foo, Bar, Baz
     }
 }

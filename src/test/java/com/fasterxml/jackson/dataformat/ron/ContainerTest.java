@@ -7,11 +7,11 @@ import java.io.IOException;
 public abstract class ContainerTest {
 
     @Test
-    public abstract void empty() throws IOException;
+    public abstract void testEmpty() throws IOException;
 
     @Test
-    public abstract void one() throws IOException;
+    public abstract void testOne() throws IOException;
 
     @Test
-    public abstract void multiple() throws IOException;
+    public abstract void testMultiple() throws IOException;
 }

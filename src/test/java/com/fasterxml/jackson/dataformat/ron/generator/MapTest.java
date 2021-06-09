@@ -3,6 +3,7 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -11,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 public class MapTest extends ContainerTest {
     @Override
-    public void empty() throws IOException {
+    public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();
         try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
             generator.writeStartObject();
@@ -21,7 +22,7 @@ public class MapTest extends ContainerTest {
     }
 
     @Override
-    public void one() throws IOException {
+    public void testOne() throws IOException {
         StringWriter w = new StringWriter();
         try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
             generator.writeStartObject();
@@ -33,7 +34,7 @@ public class MapTest extends ContainerTest {
     }
 
     @Override
-    public void multiple() throws IOException {
+    public void testMultiple() throws IOException {
         StringWriter w = new StringWriter();
         try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
             generator.writeStartObject();
@@ -44,5 +45,17 @@ public class MapTest extends ContainerTest {
             generator.writeEndObject();
         }
         assertEquals("{\"foo\":1,\"bar\":2}", w.toString());
+    }
+
+    @Test
+    public void testComplexFieldName() throws IOException {
+        StringWriter w = new StringWriter();
+        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+            generator.writeStartObject();
+            generator.writeFieldName("foo bar");
+            generator.writeNumber(1);
+            generator.writeEndObject();
+        }
+        assertEquals("{\"foo bar\":1}", w.toString());
     }
 }

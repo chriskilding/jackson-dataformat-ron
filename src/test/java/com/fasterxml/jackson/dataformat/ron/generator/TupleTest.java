@@ -6,17 +6,17 @@ import static org.junit.Assert.assertEquals;
 
 public class TupleTest extends ContainerTest {
     @Override
-    public void empty() {
+    public void testEmpty() {
         assertEquals("()", "");
     }
 
     @Override
-    public void one() {
+    public void testOne() {
         assertEquals("(1)", "");
     }
 
     @Override
-    public void multiple() {
+    public void testMultiple() {
         assertEquals("(1,2)", "");
     }
 }

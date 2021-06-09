@@ -6,17 +6,17 @@ import static org.junit.Assert.assertEquals;
 
 public class NamedStructTest extends ContainerTest {
     @Override
-    public void empty() {
+    public void testEmpty() {
         assertEquals("Example()", "");
     }
 
     @Override
-    public void one() {
+    public void testOne() {
         assertEquals("Example(foo:1)", "");
     }
 
     @Override
-    public void multiple() {
+    public void testMultiple() {
         assertEquals("Example(foo:1,bar:2)", "");
     }
 }
