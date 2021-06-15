@@ -2,7 +2,7 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
-import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class ArrayTest extends ContainerTest {
     @Override
     public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeEndArray();
         }
@@ -24,7 +24,7 @@ public class ArrayTest extends ContainerTest {
     @Override
     public void testOne() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeNumber(1);
             generator.writeEndArray();
@@ -35,7 +35,7 @@ public class ArrayTest extends ContainerTest {
     @Override
     public void testMultiple() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeNumber(1);
             generator.writeNumber(2);
@@ -48,7 +48,7 @@ public class ArrayTest extends ContainerTest {
     @Test
     public void testHeterogenous() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeNumber(1);
             generator.writeBoolean(true);

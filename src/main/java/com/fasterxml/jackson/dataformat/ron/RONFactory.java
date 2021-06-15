@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.dataformat.ron;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.format.InputAccessor;
-import com.fasterxml.jackson.core.format.MatchStrength;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.io.IOContext;
 
-import java.io.*;
-import java.net.URL;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Factory used for constructing {@link RONParser} and {@link RONGenerator}
@@ -18,4 +16,17 @@ public class RONFactory extends JsonFactory
 {
 	private static final long serialVersionUID = 1; // 2.6
 
+	@Override
+	protected RONGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException {
+		return new RONGenerator(_generatorFeatures, _objectCodec, out, ctxt);
+	}
+
+	/**
+	 * Specialise the return type of the generator, so the user does not need to downcast it.
+	 */
+	@Override
+	public RONGenerator createGenerator(Writer w) throws IOException {
+		IOContext ctxt = _createContext(w, false);
+		return this._createGenerator(_decorate(w, ctxt), ctxt);
+	}
 }

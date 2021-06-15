@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class ScalarTest {
     @Test
     public void testInt() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeNumber(123);
         }
         assertEquals("123", w.toString());
@@ -24,7 +24,7 @@ public class ScalarTest {
     @Test
     public void testBoolean() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeBoolean(true);
         }
         assertEquals("true", w.toString());
@@ -33,7 +33,7 @@ public class ScalarTest {
     @Test
     public void testFloat() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeNumber(1.23);
         }
         assertEquals("1.23", w.toString());
@@ -47,7 +47,7 @@ public class ScalarTest {
     @Test
     public void testNull() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeNull();
         }
         fail("Behavior not yet known");
@@ -56,7 +56,7 @@ public class ScalarTest {
     @Test
     public void testString() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("bar");
         }
         assertEquals("\"bar\"", w.toString());
@@ -65,7 +65,7 @@ public class ScalarTest {
     @Test
     public void testStringWithQuote() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("foo'");
         }
         assertEquals("\"foo'\"", w.toString());
@@ -74,7 +74,7 @@ public class ScalarTest {
     @Test
     public void testStringWithDoubleQuote() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("foo\"");
         }
         assertEquals("\"foo\\\"", w.toString());
@@ -83,7 +83,7 @@ public class ScalarTest {
     @Test
     public void testStringWithUnicodeControlChar() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("foo\u0001");
         }
         assertEquals("\"foo\\u0001\"", w.toString());
@@ -92,7 +92,7 @@ public class ScalarTest {
     @Test
     public void testStringWithControlChar() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONMapper().createGenerator(w)) {
+        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("foo\b");
         }
         assertEquals("\"foo\\b\"", w.toString());
