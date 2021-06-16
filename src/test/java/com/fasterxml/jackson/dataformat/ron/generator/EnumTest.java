@@ -3,6 +3,7 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import com.fasterxml.jackson.dataformat.ron.RONGenerator;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -42,5 +43,17 @@ public class EnumTest extends ContainerTest {
             generator.writeEndEnum();
         }
         assertEquals("Foo(1,2)", w.toString());
+    }
+
+    /**
+     * Test a simple RON enum which has no () braces.
+     */
+    @Test
+    public void testSimple() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeEnum("Foo");
+        }
+        assertEquals("Foo", w.toString());
     }
 }

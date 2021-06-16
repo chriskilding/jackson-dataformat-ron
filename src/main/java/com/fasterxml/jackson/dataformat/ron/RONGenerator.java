@@ -185,8 +185,14 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     }
 
     @Override
-    public void writeEnum(String name) {
-        throw new UnsupportedOperationException();
+    public void writeEnum(String name) throws IOException {
+        if (name == null) {
+            writeNull();
+            return;
+        }
+        _verifyValueWrite("write Enum value");
+        // FIXME proper escaping
+        _writer.write(name);
     }
 
     @Override
@@ -311,7 +317,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     public void writeNumber(String s) {
-        throw new UnsupportedOperationException();
+
     }
 
     @Override
