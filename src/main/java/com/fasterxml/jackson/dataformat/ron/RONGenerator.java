@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.dataformat.ron;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.FormatSchema;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.NumberOutput;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.json.JsonWriteContext;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -25,60 +24,13 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
      */
     protected RONWriteContext _writeContext;
 
-    /**
-     * Intermediate buffer in which contents are buffered before
-     * being written using {@link #_writer}.
-     */
-    protected char[] _outputBuffer;
-
-    /**
-     * Pointer to the first buffered character to output
-     */
-    protected int _outputHead;
-
-    /**
-     * Pointer to the position right beyond the last character to output
-     * (end marker; may point to position right beyond the end of the buffer)
-     */
-    protected int _outputTail;
-
-    /**
-     * End marker of the output buffer; one past the last valid position
-     * within the buffer.
-     */
-    protected int _outputEnd;
-
-    /**
-     * Intermediate buffer in which characters of a String are copied
-     * before being encoded.
-     *
-     * @since 2.10
-     */
-    protected char[] _copyBuffer;
-
     final protected IOContext _ioContext;
-
-    /**
-     * Character used for quoting JSON Object property names
-     * and String values.
-     */
-    protected final char _quoteChar = JsonFactory.DEFAULT_QUOTE_CHAR;
-
-    /**
-     * Separator to use, if any, between root-level values.
-     *
-     * @since 2.1
-     */
-    protected final SerializableString _rootValueSeparator
-            = new SerializedString(" ");
 
     protected RONGenerator(int features, ObjectCodec codec, Writer writer, IOContext ioContext) {
         super(features, codec);
         this._writer = writer;
         this._ioContext = ioContext;
         _writeContext = RONWriteContext.createRootContext();
-        _outputBuffer = ioContext.allocConcatBuffer();
-        _outputEnd = _outputBuffer.length;
     }
 
     @Override
@@ -128,8 +80,6 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     @Override
     public void close() throws IOException {
         super.close();
-        _flushBuffer();
-        _outputTail = 0; // just to ensure we don't think there's anything buffered
 
         if (_writer != null) {
             if (_ioContext.isResourceManaged() || isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET)) {
@@ -147,20 +97,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     public void writeStartArray() throws IOException {
         _verifyValueWrite("start an array");
         _writeContext = _writeContext.createChildArrayContext();
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = '[';
-    }
-
-    protected void _flushBuffer() throws IOException
-    {
-        int len = _outputTail - _outputHead;
-        if (len > 0) {
-            int offset = _outputHead;
-            _outputTail = _outputHead = 0;
-            _writer.write(_outputBuffer, offset, len);
-        }
+        _writer.write('[');
     }
 
     @Override
@@ -168,10 +105,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         if (!_writeContext.inAnArray()) {
             _reportError("Current context not Array but "+_writeContext.typeDesc());
         }
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = ']';
+        _writer.write(']');
         _writeContext = _writeContext.clearAndGetParent();
     }
 
@@ -179,14 +113,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     public void writeStartObject() throws IOException {
         _verifyValueWrite("start an object");
         _writeContext = _writeContext.createChildObjectContext();
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartObject(this);
-        } else {
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = '{';
-        }
+        _writer.write('{');
     }
 
     @Override
@@ -194,14 +121,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         if (!_writeContext.inAnObject()) {
             _reportError("Current context not Object but "+_writeContext.typeDesc());
         }
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndObject(this, _writeContext.getEntryCount());
-        } else {
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = '}';
-        }
+        _writer.write('}');
         _writeContext = _writeContext.clearAndGetParent();
     }
 
@@ -209,10 +129,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     public void writeStartTuple() throws IOException {
         _verifyValueWrite("start a tuple");
         _writeContext = _writeContext.createChildTupleContext();
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = '(';
+        _writer.write('(');
     }
 
     @Override
@@ -220,10 +137,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         if (!_writeContext.inTuple()) {
             _reportError("Current context not Tuple but "+_writeContext.typeDesc());
         }
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = ')';
+        _writer.write(')');
         _writeContext = _writeContext.clearAndGetParent();
     }
 
@@ -231,15 +145,16 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     public void writeStartStruct() throws IOException {
         _verifyValueWrite("start a struct");
         _writeContext = _writeContext.createChildStructContext();
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = '(';
+        _writer.write('(');
     }
 
     @Override
     public void writeStartStruct(String name) throws IOException {
-        throw new UnsupportedOperationException();
+        _verifyValueWrite("start a named struct");
+        _writeContext = _writeContext.createChildStructContext();
+        // FIXME escape it properly
+        _writer.write(name);
+        _writer.write('(');
     }
 
     @Override
@@ -247,16 +162,17 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         if (!_writeContext.inStruct()) {
             _reportError("Current context not Struct but "+_writeContext.typeDesc());
         }
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = ')';
+        _writer.write(')');
         _writeContext = _writeContext.clearAndGetParent();
     }
 
     @Override
     public void writeStartEnum(String name) throws IOException {
-        throw new UnsupportedOperationException();
+        _verifyValueWrite("start an enum");
+        _writeContext = _writeContext.createChildEnumContext();
+        // FIXME escape it properly
+        _writer.write(name);
+        _writer.write('(');
     }
 
     @Override
@@ -264,15 +180,12 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         if (!_writeContext.inEnum()) {
             _reportError("Current context not Enum but "+_writeContext.typeDesc());
         }
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = ')';
+        _writer.write(')');
         _writeContext = _writeContext.clearAndGetParent();
     }
 
     @Override
-    public void writeEnum(String name) throws IOException {
+    public void writeEnum(String name) {
         throw new UnsupportedOperationException();
     }
 
@@ -291,7 +204,6 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
             writeRaw(s);
         } else if (_writeContext.inAnObject()) {
             // {"foo":"bar"}
-            // FIXME proper string escaping
             writeQuotedString(s);
         }
     }
@@ -307,88 +219,50 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     }
 
     private void writeQuotedString(String s) throws IOException {
-        // FIXME proper escaping
         writeRaw(DOUBLE_QUOTE);
+        // FIXME proper escaping
         writeRaw(s);
         writeRaw(DOUBLE_QUOTE);
     }
 
     @Override
-    public void writeString(char[] chars, int i, int i1) throws IOException {
+    public void writeString(char[] chars, int i, int i1) {
 
     }
 
     @Override
-    public void writeRawUTF8String(byte[] bytes, int i, int i1) throws IOException {
+    public void writeRawUTF8String(byte[] bytes, int i, int i1) {
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] bytes, int i, int i1) throws IOException {
+    public void writeUTF8String(byte[] bytes, int i, int i1) {
 
     }
 
     @Override
     public void writeRaw(String s) throws IOException {
-        // Nothing to check, can just output as is
-        int len = s.length();
-        int room = _outputEnd - _outputTail;
-
-        if (room == 0) {
-            _flushBuffer();
-            room = _outputEnd - _outputTail;
-        }
-        // But would it nicely fit in? If yes, it's easy
-        if (room >= len) {
-            s.getChars(0, len, _outputBuffer, _outputTail);
-            _outputTail += len;
-        } else {
-            _writeRawLong(s);
-        }
-    }
-
-    protected void _writeRawLong(String text) throws IOException {
-        int room = _outputEnd - _outputTail;
-        text.getChars(0, room, _outputBuffer, _outputTail);
-        _outputTail += room;
-        _flushBuffer();
-        int offset = room;
-        int len = text.length() - room;
-
-        while (len > _outputEnd) {
-            int amount = _outputEnd;
-            text.getChars(offset, offset + amount, _outputBuffer, 0);
-            _outputTail = amount;
-            _flushBuffer();
-            offset += amount;
-            len -= amount;
-        }
-        // And last piece (at most length of buffer)
-        text.getChars(offset, offset + len, _outputBuffer, 0);
-        _outputTail = len;
+        _writer.write(s);
     }
 
     @Override
-    public void writeRaw(String s, int i, int i1) throws IOException {
+    public void writeRaw(String s, int offset, int len) {
 
     }
 
     @Override
-    public void writeRaw(char[] chars, int i, int i1) throws IOException {
+    public void writeRaw(char[] chars, int offset, int len) {
 
     }
 
     @Override
     public void writeRaw(char c) throws IOException {
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = c;
+        _writer.write(c);
     }
 
     @Override
-    public void writeBinary(Base64Variant base64Variant, byte[] bytes, int i, int i1) throws IOException {
-        _reportUnsupportedOperation();
+    public void writeBinary(Base64Variant base64Variant, byte[] bytes, int offset, int len) {
+
     }
 
     @Override
@@ -415,62 +289,47 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     public void writeNumber(double v) throws IOException {
-        // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(v));
     }
 
     @Override
     public void writeNumber(float v) throws IOException {
-        // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(v));
     }
 
     @Override
     public void writeNumber(BigDecimal bigDecimal) throws IOException {
-
+        if (bigDecimal == null) {
+            writeNull();
+            return;
+        }
+        _verifyValueWrite("write number");
+        writeRaw(String.valueOf(bigDecimal));
     }
 
     @Override
-    public void writeNumber(String s) throws IOException {
-
+    public void writeNumber(String s) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void writeBoolean(boolean b) throws IOException {
         _verifyValueWrite(WRITE_BOOLEAN);
-        if ((_outputTail + 5) >= _outputEnd) {
-            _flushBuffer();
-        }
-        int ptr = _outputTail;
-        char[] buf = _outputBuffer;
-        if (b) {
-            buf[ptr] = 't';
-            buf[++ptr] = 'r';
-            buf[++ptr] = 'u';
-            buf[++ptr] = 'e';
-        } else {
-            buf[ptr] = 'f';
-            buf[++ptr] = 'a';
-            buf[++ptr] = 'l';
-            buf[++ptr] = 's';
-            buf[++ptr] = 'e';
-        }
-        _outputTail = ptr+1;
+        _writer.write(String.valueOf(b));
     }
 
     /**
      * RON does not support null values.
      */
     @Override
-    public void writeNull() throws IOException {
+    public void writeNull() {
         _reportUnsupportedOperation();
     }
 
     @Override
     public void flush() throws IOException {
-        _flushBuffer();
         if (_writer != null) {
             if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
                 _writer.flush();
@@ -480,16 +339,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     protected void _releaseBuffers() {
-        char[] buf = _outputBuffer;
-        if (buf != null) {
-            _outputBuffer = null;
-            _ioContext.releaseConcatBuffer(buf);
-        }
-        buf = _copyBuffer;
-        if (buf != null) {
-            _copyBuffer = null;
-            _ioContext.releaseNameCopyBuffer(buf);
-        }
+        // no-op
     }
 
     @Override
@@ -501,7 +351,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
         if (_writeContext.inAnArray() || _writeContext.inTuple() || _writeContext.inEnum()) {
             if (_writeContext.getCurrentIndex() != 0) {
-                // TODO maybe modulate this according to trailing commas allowed?
+                // TODO change behavior depending on RONWriteFeature.TRAILING_COMMAS
                 writeRaw(",");
             }
         } else if (_writeContext.inStruct() || _writeContext.inAnObject()) {

@@ -43,8 +43,4 @@ public class EnumTest extends ContainerTest {
         }
         assertEquals("Foo(1,2)", w.toString());
     }
-
-    public enum Example {
-        Foo, Bar, Baz
-    }
 }

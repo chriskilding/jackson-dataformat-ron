@@ -17,7 +17,7 @@ public class RONFactory extends JsonFactory
 	private static final long serialVersionUID = 1; // 2.6
 
 	@Override
-	protected RONGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException {
+	protected RONGenerator _createGenerator(Writer out, IOContext ctxt) {
 		return new RONGenerator(_generatorFeatures, _objectCodec, out, ctxt);
 	}
 

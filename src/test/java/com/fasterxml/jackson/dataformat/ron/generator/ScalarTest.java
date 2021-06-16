@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -37,6 +39,24 @@ public class ScalarTest {
             generator.writeNumber(1.23);
         }
         assertEquals("1.23", w.toString());
+    }
+
+    @Test
+    public void testBigInteger() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(BigInteger.ONE);
+        }
+        assertEquals("1", w.toString());
+    }
+
+    @Test
+    public void testBigDecimal() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(BigDecimal.valueOf(1.234));
+        }
+        assertEquals("1.234", w.toString());
     }
 
     @Test

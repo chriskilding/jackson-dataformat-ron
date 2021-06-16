@@ -4,6 +4,12 @@ Experimental [Rust Object Notation](https://github.com/ron-rs/ron) (RON) support
 
 This is a project to find out whether it is feasible for RON to be a backend for Jackson, or whether Jackon is too JSON-specific for that to work.
 
+## Limitations
+
+The following limitations are in place due to the prototype nature of this code:
+
+- The `RONGenerator` uses direct calls to its delegate `Writer`. It does not use copy buffers.
+
 ## Design notes
 
 ### Generator
