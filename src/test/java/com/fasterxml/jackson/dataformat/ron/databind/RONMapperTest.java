@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.dataformat.ron.databind;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.ron.RONWriteFeature;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -18,7 +18,18 @@ public class RONMapperTest {
         person.setGivenName("Joe");
         person.setFamilyName("Bloggs");
         String ron = mapper.writeValueAsString(person);
-        assertEquals("(familyName:\"Joe\",givenName:\"Bloggs\")", ron);
+        assertEquals("(givenName:\"Joe\",familyName:\"Bloggs\")", ron);
+    }
+
+    @Test
+    public void testWriteNamedStruct() throws JsonProcessingException {
+        RONMapper mapper = new RONMapper()
+                .enable(RONWriteFeature.TRAILING_COMMAS);
+        Person person = new Person();
+        person.setGivenName("Joe");
+        person.setFamilyName("Bloggs");
+        String ron = mapper.writeValueAsString(person);
+        assertEquals("Person(givenName:\"Joe\",familyName:\"Bloggs\")", ron);
     }
 
     @Test
@@ -38,13 +49,13 @@ public class RONMapperTest {
     }
 
     @Test
-    public void testWriteMap() throws JsonProcessingException {
+    public void testWriteObject() throws JsonProcessingException {
         RONMapper mapper = new RONMapper();
         Map<String, Integer> map = new HashMap<>();
         map.put("foo", 1);
         map.put("bar", 2);
         String ron = mapper.writeValueAsString(map);
-        assertEquals("{\"foo\":1,\"bar\":2}", ron);
+        assertEquals("{\"bar\":2,\"foo\":1}", ron);
     }
 
     public static class Person {

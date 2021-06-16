@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.dataformat.ron.generator;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import com.fasterxml.jackson.dataformat.ron.RONGenerator;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -10,11 +10,11 @@ import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
 
-public class MapTest extends ContainerTest {
+public class ObjectTest extends ContainerTest {
     @Override
     public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartObject();
             generator.writeEndObject();
         }
@@ -24,7 +24,7 @@ public class MapTest extends ContainerTest {
     @Override
     public void testOne() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartObject();
             generator.writeFieldName("foo");
             generator.writeNumber(1);
@@ -36,7 +36,7 @@ public class MapTest extends ContainerTest {
     @Override
     public void testMultiple() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartObject();
             generator.writeFieldName("foo");
             generator.writeNumber(1);
@@ -50,7 +50,7 @@ public class MapTest extends ContainerTest {
     @Test
     public void testComplexFieldName() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartObject();
             generator.writeFieldName("foo bar");
             generator.writeNumber(1);

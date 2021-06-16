@@ -3,6 +3,7 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import com.fasterxml.jackson.dataformat.ron.RONGenerator;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class ArrayTest extends ContainerTest {
     @Override
     public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeEndArray();
         }
@@ -24,7 +25,7 @@ public class ArrayTest extends ContainerTest {
     @Override
     public void testOne() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeNumber(1);
             generator.writeEndArray();
@@ -35,7 +36,7 @@ public class ArrayTest extends ContainerTest {
     @Override
     public void testMultiple() throws IOException {
         StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartArray();
             generator.writeNumber(1);
             generator.writeNumber(2);
@@ -43,17 +44,5 @@ public class ArrayTest extends ContainerTest {
             generator.writeEndArray();
         }
         assertEquals("[1,2,3]", w.toString());
-    }
-
-    @Test
-    public void testHeterogenous() throws IOException {
-        StringWriter w = new StringWriter();
-        try (JsonGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartArray();
-            generator.writeNumber(1);
-            generator.writeBoolean(true);
-            generator.writeEndArray();
-        }
-        assertEquals("[1,true]", w.toString());
     }
 }

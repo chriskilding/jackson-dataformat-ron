@@ -37,9 +37,9 @@ public class TupleTest extends ContainerTest {
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartTuple();
             generator.writeNumber(1);
-            generator.writeNumber(2);
+            generator.writeBoolean(true);
             generator.writeEndTuple();
         }
-        assertEquals("(1,2)", w.toString());
+        assertEquals("(1,true)", w.toString());
     }
 }

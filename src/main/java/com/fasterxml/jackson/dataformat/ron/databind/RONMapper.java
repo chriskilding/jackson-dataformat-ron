@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.dataformat.ron.PackageVersion;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import com.fasterxml.jackson.dataformat.ron.RONWriteFeature;
 
 import java.util.Collection;
 
@@ -62,6 +63,11 @@ public class RONMapper extends ObjectMapper {
     @Override
     public RONFactory getFactory() {
         return (RONFactory) _jsonFactory;
+    }
+
+    public RONMapper enable(RONWriteFeature f) {
+        _serializationConfig = _serializationConfig.with(f);
+        return this;
     }
 
     private enum ThingType {

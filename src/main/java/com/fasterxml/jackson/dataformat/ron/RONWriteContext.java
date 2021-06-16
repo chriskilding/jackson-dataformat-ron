@@ -18,6 +18,12 @@ public class RONWriteContext extends JsonStreamContext {
      */
     protected final RONWriteContext _parent;
 
+    /**
+     * Marker used to indicate that we just received a name, and
+     * now expect a value
+     */
+    protected boolean _gotName;
+
     protected RONWriteContext _child = null;
 
     /**
@@ -32,6 +38,7 @@ public class RONWriteContext extends JsonStreamContext {
         _type = type;
         _parent = parent;
         _index = -1;
+        _gotName = false;
     }
 
     static RONWriteContext createRootContext() {
@@ -55,22 +62,47 @@ public class RONWriteContext extends JsonStreamContext {
     }
 
     public RONWriteContext createChildTupleContext() {
-        throw new UnsupportedOperationException();
+        RONWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new RONWriteContext(ContextType.TUPLE, this);
+            return ctxt;
+        }
+        ctxt.reset(ContextType.TUPLE);
+        return ctxt;
     }
 
     public RONWriteContext createChildEnumContext() {
-        throw new UnsupportedOperationException();
+        RONWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new RONWriteContext(ContextType.ENUM, this);
+            return ctxt;
+        }
+        ctxt.reset(ContextType.ENUM);
+        return ctxt;
     }
 
     public RONWriteContext createChildStructContext() {
-        throw new UnsupportedOperationException();
+        RONWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new RONWriteContext(ContextType.STRUCT, this);
+            return ctxt;
+        }
+        ctxt.reset(ContextType.STRUCT);
+        return ctxt;
     }
 
     public RONWriteContext createChildObjectContext() {
-        throw new UnsupportedOperationException();
+        RONWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new RONWriteContext(ContextType.OBJECT, this);
+            return ctxt;
+        }
+        ctxt.reset(ContextType.OBJECT);
+        return ctxt;
     }
 
     public RONWriteContext clearAndGetParent() {
+//        _currentValue = null;
         // could also clear the current name, but seems cheap enough to leave?
         return _parent;
     }
@@ -85,23 +117,52 @@ public class RONWriteContext extends JsonStreamContext {
         return _currentName;
     }
 
-    // FIXME this is currently not possible; must ask jackson-core to remove final modifier
-    //    @Override
-    //    public boolean inArray() {}
+    public boolean writeName(String name) {
+        if (_gotName) {
+            return false;
+        }
+        _gotName = true;
+        _currentName = name;
+        return true;
+    }
 
-    // FIXME this is currently not possible; must ask jackson-core to remove final modifier
-    //    @Override
-    //    public boolean inObject() {}
+    public boolean writeValue() {
+        // Most likely, object:
+        if (_type == ContextType.OBJECT || _type == ContextType.STRUCT) {
+            if (!_gotName) {
+                return false;
+            }
+            _gotName = false;
+        }
+        // Array fine, and must allow root context for Object values too so...
+        ++_index;
+        return true;
+    }
+
+    // FIXME cannot @Override inArray(); must ask jackson-core to remove final modifier
+    public boolean inAnArray() {
+        return _type == ContextType.ARRAY;
+    }
+
+    // FIXME cannot @Override inObject(); must ask jackson-core to remove final modifier
+    public boolean inAnObject() {
+        return _type == ContextType.OBJECT;
+    }
+
+    // FIXME cannot @Override inRoot(); must ask jackson-core to remove final modifier
+    public boolean inTheRoot() {
+        return _type == ContextType.ROOT;
+    }
 
     public boolean inEnum() {
-        throw new UnsupportedOperationException();
+        return _type == ContextType.ENUM;
     }
 
     public boolean inTuple() {
-        throw new UnsupportedOperationException();
+        return _type == ContextType.TUPLE;
     }
 
     public boolean inStruct() {
-        throw new UnsupportedOperationException();
+        return _type == ContextType.STRUCT;
     }
 }
