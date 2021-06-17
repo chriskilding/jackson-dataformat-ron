@@ -1,48 +1,44 @@
 package com.fasterxml.jackson.dataformat.ron.generator;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import com.fasterxml.jackson.dataformat.ron.RONGenerator;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
 
-public class ArrayTest extends ContainerTest {
+public class TupleGeneratorTest extends ContainerTest {
     @Override
     public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartArray();
-            generator.writeEndArray();
+            generator.writeStartTuple();
+            generator.writeEndTuple();
         }
-        assertEquals("[]", w.toString());
+        assertEquals("()", w.toString());
     }
 
     @Override
     public void testOne() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartArray();
+            generator.writeStartTuple();
             generator.writeNumber(1);
-            generator.writeEndArray();
+            generator.writeEndTuple();
         }
-        assertEquals("[1]", w.toString());
+        assertEquals("(1)", w.toString());
     }
 
     @Override
     public void testMultiple() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartArray();
+            generator.writeStartTuple();
             generator.writeNumber(1);
-            generator.writeNumber(2);
-            generator.writeNumber(3);
-            generator.writeEndArray();
+            generator.writeBoolean(true);
+            generator.writeEndTuple();
         }
-        assertEquals("[1,2,3]", w.toString());
+        assertEquals("(1,true)", w.toString());
     }
 }

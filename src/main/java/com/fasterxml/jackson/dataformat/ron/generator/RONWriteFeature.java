@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.ron;
+package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.core.FormatFeature;
 

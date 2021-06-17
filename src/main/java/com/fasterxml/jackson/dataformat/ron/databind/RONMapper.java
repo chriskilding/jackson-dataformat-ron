@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.dataformat.ron.PackageVersion;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import com.fasterxml.jackson.dataformat.ron.RONWriteFeature;
+import com.fasterxml.jackson.dataformat.ron.generator.RONWriteFeature;
 
 import java.util.Collection;
 

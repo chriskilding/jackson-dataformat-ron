@@ -2,7 +2,6 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import com.fasterxml.jackson.dataformat.ron.RONGenerator;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -10,52 +9,50 @@ import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
 
-public class ObjectTest extends ContainerTest {
+public class EnumGeneratorTest extends ContainerTest {
+
     @Override
     public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartObject();
-            generator.writeEndObject();
+            generator.writeStartEnum("Foo");
+            generator.writeEndEnum();
         }
-        assertEquals("{}", w.toString());
+        assertEquals("Foo()", w.toString());
     }
 
     @Override
     public void testOne() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartObject();
-            generator.writeFieldName("foo");
+            generator.writeStartEnum("Foo");
             generator.writeNumber(1);
-            generator.writeEndObject();
+            generator.writeEndEnum();
         }
-        assertEquals("{\"foo\":1}", w.toString());
+        assertEquals("Foo(1)", w.toString());
     }
 
     @Override
     public void testMultiple() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartObject();
-            generator.writeFieldName("foo");
+            generator.writeStartEnum("Foo");
             generator.writeNumber(1);
-            generator.writeFieldName("bar");
             generator.writeNumber(2);
-            generator.writeEndObject();
+            generator.writeEndEnum();
         }
-        assertEquals("{\"foo\":1,\"bar\":2}", w.toString());
+        assertEquals("Foo(1,2)", w.toString());
     }
 
+    /**
+     * Test a simple RON enum which has no () braces.
+     */
     @Test
-    public void testComplexFieldName() throws IOException {
+    public void testSimple() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartObject();
-            generator.writeFieldName("foo bar");
-            generator.writeNumber(1);
-            generator.writeEndObject();
+            generator.writeEnum("Foo");
         }
-        assertEquals("{\"foo bar\":1}", w.toString());
+        assertEquals("Foo", w.toString());
     }
 }

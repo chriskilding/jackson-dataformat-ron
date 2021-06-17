@@ -2,7 +2,7 @@ package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.util.EnumValues;
-import com.fasterxml.jackson.dataformat.ron.RONGenerator;
+import com.fasterxml.jackson.dataformat.ron.generator.RONGenerator;
 
 import java.io.IOException;
 
@@ -13,18 +13,16 @@ public class EnumSerializer extends RONSerializer<Enum<?>> {
 
     protected final EnumValues _values;
 
-    protected final Boolean _serializeAsIndex;
-
-    public EnumSerializer(EnumValues v, Boolean serializeAsIndex) {
+    public EnumSerializer(EnumValues v) {
         _values = v;
-        _serializeAsIndex = serializeAsIndex;
     }
 
     @Override
     public final void serialize(Enum<?> en, RONGenerator gen, SerializerProvider serializers)
             throws IOException {
 
-        final String name = _values.serializedValueFor(en).getValue();
+        // TODO proper name lookup
+        final String name = en.getDeclaringClass().getName();
 
         boolean hasChildFields = false;
         if (hasChildFields) {

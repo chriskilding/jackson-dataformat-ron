@@ -2,14 +2,13 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import com.fasterxml.jackson.dataformat.ron.RONGenerator;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
 
-public class NamedStructTest extends ContainerTest {
+public class NamedStructGeneratorTest extends ContainerTest {
     @Override
     public void testEmpty() throws IOException {
         StringWriter w = new StringWriter();

@@ -1,17 +1,14 @@
-package com.fasterxml.jackson.dataformat.ron;
+package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.dataformat.ron.RONContextType;
 
 public class RONWriteContext extends JsonStreamContext {
-
-    public enum ContextType {
-        ROOT, ARRAY, OBJECT, STRUCT, TUPLE, ENUM
-    }
 
     /**
      * Indicates logical type of context.
      */
-    protected ContextType _type;
+    protected RONContextType _type;
 
     /**
      * Parent context for this context; null for root context.
@@ -32,7 +29,7 @@ public class RONWriteContext extends JsonStreamContext {
      */
     protected String _currentName;
 
-    RONWriteContext(ContextType type, RONWriteContext parent)
+    RONWriteContext(RONContextType type, RONWriteContext parent)
     {
         super();
         _type = type;
@@ -42,20 +39,20 @@ public class RONWriteContext extends JsonStreamContext {
     }
 
     static RONWriteContext createRootContext() {
-        return new RONWriteContext(ContextType.ROOT, null);
+        return new RONWriteContext(RONContextType.ROOT, null);
     }
 
     public RONWriteContext createChildArrayContext() {
         RONWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(ContextType.ARRAY, this);
+            _child = ctxt = new RONWriteContext(RONContextType.ARRAY, this);
             return ctxt;
         }
-        ctxt.reset(ContextType.ARRAY);
+        ctxt.reset(RONContextType.ARRAY);
         return ctxt;
     }
 
-    private void reset(ContextType type) {
+    private void reset(RONContextType type) {
         _type = type;
         _currentName = null;
         _index = -1;
@@ -64,40 +61,40 @@ public class RONWriteContext extends JsonStreamContext {
     public RONWriteContext createChildTupleContext() {
         RONWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(ContextType.TUPLE, this);
+            _child = ctxt = new RONWriteContext(RONContextType.TUPLE, this);
             return ctxt;
         }
-        ctxt.reset(ContextType.TUPLE);
+        ctxt.reset(RONContextType.TUPLE);
         return ctxt;
     }
 
     public RONWriteContext createChildEnumContext() {
         RONWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(ContextType.ENUM, this);
+            _child = ctxt = new RONWriteContext(RONContextType.ENUM, this);
             return ctxt;
         }
-        ctxt.reset(ContextType.ENUM);
+        ctxt.reset(RONContextType.ENUM);
         return ctxt;
     }
 
     public RONWriteContext createChildStructContext() {
         RONWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(ContextType.STRUCT, this);
+            _child = ctxt = new RONWriteContext(RONContextType.STRUCT, this);
             return ctxt;
         }
-        ctxt.reset(ContextType.STRUCT);
+        ctxt.reset(RONContextType.STRUCT);
         return ctxt;
     }
 
     public RONWriteContext createChildObjectContext() {
         RONWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(ContextType.OBJECT, this);
+            _child = ctxt = new RONWriteContext(RONContextType.OBJECT, this);
             return ctxt;
         }
-        ctxt.reset(ContextType.OBJECT);
+        ctxt.reset(RONContextType.OBJECT);
         return ctxt;
     }
 
@@ -128,7 +125,7 @@ public class RONWriteContext extends JsonStreamContext {
 
     public boolean writeValue() {
         // Most likely, object:
-        if (_type == ContextType.OBJECT || _type == ContextType.STRUCT) {
+        if (_type == RONContextType.OBJECT || _type == RONContextType.STRUCT) {
             if (!_gotName) {
                 return false;
             }
@@ -141,28 +138,28 @@ public class RONWriteContext extends JsonStreamContext {
 
     // FIXME cannot @Override inArray(); must ask jackson-core to remove final modifier
     public boolean inAnArray() {
-        return _type == ContextType.ARRAY;
+        return _type == RONContextType.ARRAY;
     }
 
     // FIXME cannot @Override inObject(); must ask jackson-core to remove final modifier
     public boolean inAnObject() {
-        return _type == ContextType.OBJECT;
+        return _type == RONContextType.OBJECT;
     }
 
     // FIXME cannot @Override inRoot(); must ask jackson-core to remove final modifier
     public boolean inTheRoot() {
-        return _type == ContextType.ROOT;
+        return _type == RONContextType.ROOT;
     }
 
     public boolean inEnum() {
-        return _type == ContextType.ENUM;
+        return _type == RONContextType.ENUM;
     }
 
     public boolean inTuple() {
-        return _type == ContextType.TUPLE;
+        return _type == RONContextType.TUPLE;
     }
 
     public boolean inStruct() {
-        return _type == ContextType.STRUCT;
+        return _type == RONContextType.STRUCT;
     }
 }

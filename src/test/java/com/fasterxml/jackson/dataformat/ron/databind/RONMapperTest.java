@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.dataformat.ron.databind;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.ron.RONWriteFeature;
+import com.fasterxml.jackson.dataformat.ron.generator.RONWriteFeature;
 import org.junit.Test;
 
 import java.util.HashMap;

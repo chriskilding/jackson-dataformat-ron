@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import com.fasterxml.jackson.dataformat.ron.RONGenerator;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.math.BigInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ScalarTest {
+public class ScalarGeneratorTest {
 
     @Test
     public void testInt() throws IOException {

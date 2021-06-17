@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.ron;
+package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.FormatSchema;
@@ -26,7 +26,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     final protected IOContext _ioContext;
 
-    protected RONGenerator(int features, ObjectCodec codec, Writer writer, IOContext ioContext) {
+    public RONGenerator(int features, ObjectCodec codec, Writer writer, IOContext ioContext) {
         super(features, codec);
         this._writer = writer;
         this._ioContext = ioContext;
