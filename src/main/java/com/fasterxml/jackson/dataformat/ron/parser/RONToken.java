@@ -12,6 +12,7 @@ public enum RONToken {
     START_OBJECT,
     END_OBJECT,
 
+    ENUM,
     START_ENUM,
     END_ENUM,
 

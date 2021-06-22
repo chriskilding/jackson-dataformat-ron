@@ -33,7 +33,7 @@ public class RONFactory extends JsonFactory
 	 */
 	@Override
 	protected RONParser _createParser(Reader r, IOContext ctxt) {
-		return new RONParser(ctxt, _parserFeatures, r);
+		return new RONParser(ctxt, _parserFeatures, r, _objectCodec, _rootCharSymbols.makeChild(_factoryFeatures));
 	}
 
 	@Override

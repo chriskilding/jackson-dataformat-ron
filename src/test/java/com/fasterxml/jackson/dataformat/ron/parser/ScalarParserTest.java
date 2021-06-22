@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.dataformat.ron.parser;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import org.junit.Test;
@@ -48,6 +49,47 @@ public class ScalarParserTest {
 
         try (RONParser parser = new RONFactory().createParser(new StringReader("false"))) {
             assertFalse(parser.nextBooleanValue());
+        }
+    }
+
+    @Test
+    public void testInf() throws IOException {
+        Reader ron = new StringReader("inf");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            // there is no parser.nextFloatValue()
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
+        }
+    }
+
+    @Test
+    public void testMinusInf() throws IOException {
+        Reader ron = new StringReader("-inf");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            // there is no parser.nextFloatValue()
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
+        }
+    }
+
+    @Test
+    public void testNaN() throws IOException {
+        Reader ron = new StringReader("NaN");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            fail("Unclear what behavior should be");
+        }
+    }
+
+    /**
+     * RON does not have null support. Instead the token 'null' will be parsed like any other arbitrary string token.
+     */
+    @Test(expected = JsonParseException.class)
+    public void testNull() throws IOException {
+        final StringReader ron = new StringReader("null");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            JsonToken foo = parser.nextToken();
         }
     }
 }

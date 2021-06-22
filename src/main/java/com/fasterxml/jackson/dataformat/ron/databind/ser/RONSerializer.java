@@ -5,7 +5,12 @@ import com.fasterxml.jackson.dataformat.ron.generator.RONGenerator;
 
 import java.io.IOException;
 
+/**
+ * RON equivalent of the Jackson StdSerializer base class.
+ * @param <T>
+ */
 public abstract class RONSerializer<T> {
+
     public abstract void serialize(T value, RONGenerator gen, SerializerProvider serializers)
             throws IOException;
 }
