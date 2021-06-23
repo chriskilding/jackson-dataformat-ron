@@ -3,6 +3,7 @@ package com.fasterxml.jackson.dataformat.ron.parser;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class ScalarParserTest {
         }
     }
 
-    @Test
+    @Ignore("Not supported yet")
     public void testMinusInf() throws IOException {
         Reader ron = new StringReader("-inf");
 
@@ -72,7 +73,7 @@ public class ScalarParserTest {
         }
     }
 
-    @Test
+    @Ignore("Not supported yet")
     public void testNaN() throws IOException {
         Reader ron = new StringReader("NaN");
 

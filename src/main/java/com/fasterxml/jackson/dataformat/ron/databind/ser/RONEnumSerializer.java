@@ -1,10 +1,7 @@
 package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.std.EnumSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.util.EnumValues;
 import com.fasterxml.jackson.dataformat.ron.generator.RONGenerator;
 
@@ -36,8 +33,8 @@ class RONEnumSerializer extends RONSerializer<Enum<?>> {
     public final void serialize(Enum<?> en, RONGenerator gen, SerializerProvider serializers)
             throws IOException {
 
-        gen.writeStartEnum(_values.serializedValueFor(en).getValue());
-        // TODO write child fields
-        gen.writeEndEnum();
+        final String name = _values.serializedValueFor(en).getValue();
+        gen.writeEnum(name);
+        // TODO write child fields - but note, the standard ObjectMapper cannot do this for enums either
     }
 }

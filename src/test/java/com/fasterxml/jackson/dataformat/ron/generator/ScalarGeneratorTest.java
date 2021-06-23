@@ -64,7 +64,7 @@ public class ScalarGeneratorTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testNull() throws IOException {
+    public void testNullRejected() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeNull();

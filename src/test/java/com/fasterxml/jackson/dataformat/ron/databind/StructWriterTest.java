@@ -12,14 +12,6 @@ public class StructWriterTest {
         RONMapper mapper = new RONMapper();
         Book book = new Book(true, 1);
         String ron = mapper.writeValueAsString(book);
-        assertEquals("(abridged:true,numberOfPages:1)", ron);
-    }
-
-    @Test
-    public void testWriteNamedStruct() throws JsonProcessingException {
-        RONMapper mapper = new RONMapper();
-        Book book = new Book(true, 1);
-        String ron = mapper.writeValueAsString(book);
         assertEquals("Book(abridged:true,numberOfPages:1)", ron);
     }
 
@@ -28,27 +20,11 @@ public class StructWriterTest {
      */
     static class Book {
 
-        private boolean abridged;
-        private int numberOfPages;
+        public boolean abridged;
+        public int numberOfPages;
 
         Book(boolean abridged, int numberOfPages) {
             this.abridged = abridged;
-            this.numberOfPages = numberOfPages;
-        }
-
-        public boolean isAbridged() {
-            return abridged;
-        }
-
-        public void setAbridged(boolean abridged) {
-            this.abridged = abridged;
-        }
-
-        public int getNumberOfPages() {
-            return numberOfPages;
-        }
-
-        public void setNumberOfPages(int numberOfPages) {
             this.numberOfPages = numberOfPages;
         }
     }

@@ -19,11 +19,11 @@ The Jackson RON backend supports the following RON types:
 |Scalars|Y|?|Y|
 |Objects|Y|?|Y|
 |Arrays|Y|?|Y|
-|Enums|Y|?|?|
-|Structs|Y|?|?|
+|Enums|Y|?|Y|
+|Structs|Y|?|Y|
 |Tuples|Y|?|N<sup>1</sup>|
 
-<small><sup>1</sup> Tuples do not exist natively in Java. They can be read or written at the token level, but cannot (currently) be used with the ObjectMapper.</small>
+<small><sup>1</sup> Java does not have a native concept of tuples. They can be read or written at the token level, but cannot (currently) be used with the ObjectMapper.</small>
 
 It also supports the following RON features:
 
@@ -53,10 +53,17 @@ Then add the dependency to your Maven POM:
 
 Use the `RONGenerator`, `RONParser`, or `RONMapper` from your code as you would any other Jackson backend.
 
-To use RON-specific features (structs, enums, tuples etc.), call the methods that are specific to the RON
-implementations.
-
 ### RONGenerator
+
+To write RON constructs, call the RON-specific `writeXXX` methods on the `RONGenerator`.
+
+- Enums:
+  - Simple enums: `writeEnum(String)`
+  - Compound enums: `writeStartEnum(String)` / `writeEndEnum()`
+- Structs:
+  - Simple structs: `writeStartStruct()` / `writeEndStruct()`
+  - Named structs: `writeStartStruct(String)` / `writeEndStruct()`
+- Tuples: `writeStartTuple()` / `writeEndTuple()`
 
 ```java
 public class GeneratorExample {
@@ -70,12 +77,15 @@ public class GeneratorExample {
             generator.writeNumber("Bloggs");
             generator.writeEndStruct();
         }
-        String s = w.toString(); // => Person(givenName:"Joe",familyName:"Bloggs")
+        String s = w.toString();
+        // => Person(givenName:"Joe",familyName:"Bloggs")
     }
 }
 ```
 
 ### RONParser
+
+TODO document
 
 ```java
 public class ParserExample {
@@ -83,7 +93,7 @@ public class ParserExample {
         Reader ron = new StringReader("Person(givenName:\"Joe\",familyName:\"Bloggs\")");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            // FIXME decide how to handle struct name
+            // TODO decide how to handle struct name
             parser.nextToken(); // enter struct
             String field1 = parser.nextFieldName();     // => "givenName"
             String givenName = parser.nextTextValue();  // => "Joe"
@@ -104,10 +114,38 @@ In Rust, serialization is driven strongly by convention: objects are mapped to t
 |java.util.Map|Map|
 |Array|Array|
 |java.util.Collection|Array|
-|Enum|Enum|
-|POJO|Struct<sup>1</sup>|
+|Enum|Enum<sup>1</sup>|
+|POJO|Struct<sup>2</sup>|
 
-<small><sup>1</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.</small>
+<small>
+<sup>1</sup> Only the enum itself is serialized; child fields of the enum are not serialized.
+<br>
+<sup>2</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.
+</small>
+
+To serialize an object, just use the `RONMapper` like you would use the `ObjectMapper`: 
+
+```java
+class MapperExample {
+    
+    // A typical POJO
+    static class Book {
+        public boolean abridged;
+        public int numberOfPages;
+
+        Book(boolean abridged, int numberOfPages) {
+            this.abridged = abridged;
+            this.numberOfPages = numberOfPages;
+        }
+    }
+    
+    static void run() {
+        Book book = new Book(true, 1);
+        String s = new RONMapper().writeValueAsString(book);
+        // => Book(abridged:true,numberOfPages:1)
+    }
+}
+```
 
 ## Limitations
 
@@ -115,3 +153,4 @@ The following limitations are in place due to the prototype nature of this code:
 
 - The `RONGenerator` uses direct calls to its delegate `Writer`. It does not use copy buffers.
 - There is no pretty printer for RON.
+- There are no custom de/serialization `Features` for the RONMapper.

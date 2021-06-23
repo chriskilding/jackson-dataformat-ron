@@ -2,6 +2,9 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.core.FormatFeature;
 
+/**
+ * Low-level features in the RON generator.
+ */
 public enum RONWriteFeature implements FormatFeature {
 
     /**
