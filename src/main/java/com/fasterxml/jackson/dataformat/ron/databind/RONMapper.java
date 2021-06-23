@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.dataformat.ron.PackageVersion;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import com.fasterxml.jackson.dataformat.ron.databind.ser.RONSerializerFactory;
 import com.fasterxml.jackson.dataformat.ron.generator.RONWriteFeature;
 
 import java.util.Collection;
@@ -12,30 +13,33 @@ import java.util.Collection;
 public class RONMapper extends ObjectMapper {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Base implementation for "Vanilla" {@link ObjectMapper}, used with
-     * RON backend.
-     */
     public static class Builder extends MapperBuilder<RONMapper, Builder> {
         public Builder(RONMapper m) {
             super(m);
         }
     }
 
-    /*
-    /**********************************************************
-    /* Life-cycle
-    /**********************************************************
+    /**
+     * Convenience constructor
      */
-
     public RONMapper() {
         this(new RONFactory());
     }
 
+
+    /**
+     * Main constructor
+     */
     public RONMapper(RONFactory f) {
         super(f);
+
+        // Default serializer factory is stateless, can just assign
+        _serializerFactory = RONSerializerFactory.instance;
     }
 
+    /**
+     * Copy constructor
+     */
     protected RONMapper(RONMapper src) {
         super(src);
     }

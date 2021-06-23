@@ -21,9 +21,9 @@ The Jackson RON backend supports the following RON types:
 |Arrays|Y|?|Y|
 |Enums|Y|?|?|
 |Structs|Y|?|?|
-|Tuples|Y|?|?<sup>1</sup>|
+|Tuples|Y|?|N<sup>1</sup>|
 
-<sup>1</sup> Tuples do not exist natively in Java. They can be read or written at the token level, but you must do extra work to use them at the mapper level.
+<small><sup>1</sup> Tuples do not exist natively in Java. They can be read or written at the token level, but cannot (currently) be used with the ObjectMapper.</small>
 
 It also supports the following RON features:
 
@@ -97,13 +97,7 @@ public class ParserExample {
 
 ### RONMapper
 
-#### Reading
-
-TODO add section
-
-#### Writing
-
-In Rust, serialization is driven strongly by convention: objects are serialized to their closest RON type. We follow this convention wherever possible, except when deficiencies in the Java type system create ambiguity:
+In Rust, serialization is driven strongly by convention: objects are mapped to their closest RON type. We follow this convention as closely as possible.
 
 | Java Type | RON Type |
 --- | ---
@@ -111,48 +105,9 @@ In Rust, serialization is driven strongly by convention: objects are serialized 
 |Array|Array|
 |java.util.Collection|Array|
 |Enum|Enum|
-|POJO|Struct (default) or Tuple|
+|POJO|Struct<sup>1</sup>|
 
-Java does not have a native concept of tuples, so the serialization of POJOs is ambiguous. We must use **annotations** to tell the RONMapper what we want to happen.
-
-By default, an object is serialized as a **struct**:
-
-```java
-class Book {
-
-    private boolean abridged;
-    private int numberOfPages;
-    
-    public boolean isAbridged() {
-        return abridged;
-    }
-    
-    public void setAbridged(boolean abridged) {
-        this.abridged = abridged;
-    }
-    
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-    
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-}
-
-// => Book(abridged: true, numberOfPages: 1)
-```
-
-To serialize as a **tuple** instead:
-
-```java
-@JsonSerialize(using = RONTupleSerializer.class)
-class Book {
-    // ...
-}
-
-// => (true, 1)
-```
+<small><sup>1</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.</small>
 
 ## Limitations
 

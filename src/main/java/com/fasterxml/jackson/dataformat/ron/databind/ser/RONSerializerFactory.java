@@ -5,32 +5,29 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.ser.BasicSerializerFactory;
+import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.ser.Serializers;
 
-public class RONSerializerFactory extends BasicSerializerFactory {
+public class RONSerializerFactory extends BeanSerializerFactory {
 
-    protected RONSerializerFactory(SerializerFactoryConfig config) {
+    /**
+     * This factory is stateless, so a single shared global (== singleton) instance can be used
+     * without thread-safety issues.
+     */
+    public static final RONSerializerFactory instance = new RONSerializerFactory(null);
+
+    public RONSerializerFactory(SerializerFactoryConfig config) {
         super(config);
     }
 
-    @Override
-    public SerializerFactory withConfig(SerializerFactoryConfig config) {
-        return null;
-    }
-
-    @Override
-    public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType type) throws JsonMappingException {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    protected Iterable<Serializers> customSerializers() {
-        return null;
-    }
+//    @Override
+//    public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType type) throws JsonMappingException {
+//        return super.createSerializer(prov, type);
+//    }
 
     /**
-     * Attempt to insert our own RON enum serializer instead of the default.
+     * Use the RON enum serializer instead of the default.
      */
     @Override
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config, JavaType type, BeanDescription beanDesc) throws JsonMappingException {
@@ -47,9 +44,7 @@ public class RONSerializerFactory extends BasicSerializerFactory {
             return null;
         }
         Class<Enum<?>> enumClass = (Class<Enum<?>>) type.getRawClass();
-        return null;
-//        return RONEnumSerializer.construct(enumClass, config);
+        return RONEnumSerializer.construct(enumClass, config);
     }
-
 
 }

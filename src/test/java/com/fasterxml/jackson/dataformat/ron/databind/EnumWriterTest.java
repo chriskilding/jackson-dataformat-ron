@@ -9,13 +9,50 @@ public class EnumWriterTest {
 
     @Test
     public void testWriteEnum() throws JsonProcessingException {
-        RONMapper mapper = new RONMapper();
         Foo foo = Foo.Bar;
-        String ron = mapper.writeValueAsString(foo);
+        String ron = new RONMapper().writeValueAsString(foo);
         assertEquals("Bar", ron);
     }
 
-    public enum Foo {
-        Bar, Baz
+    @Test
+    public void testWriteEnumWithParameter() throws JsonProcessingException {
+        FooWithParameter foo = FooWithParameter.Bar;
+        String ron = new RONMapper().writeValueAsString(foo);
+        assertEquals("Bar(1)", ron);
+    }
+
+    @Test
+    public void testWriteEnumWithMultipleParameters() throws JsonProcessingException {
+        Coordinate coord = Coordinate.Bar;
+        String ron = new RONMapper().writeValueAsString(coord);
+        assertEquals("Bar(10, 20)", ron);
+    }
+
+    enum Foo {
+        Bar
+    }
+
+    enum FooWithParameter {
+
+        Bar(1);
+
+        final int i;
+
+        FooWithParameter(int i) {
+            this.i = i;
+        }
+    }
+
+    enum Coordinate {
+
+        Bar(10, 20);
+
+        final int x;
+        final int y;
+
+        Coordinate(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }

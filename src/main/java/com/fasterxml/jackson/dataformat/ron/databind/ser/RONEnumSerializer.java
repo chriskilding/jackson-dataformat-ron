@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.std.EnumSerializer;
 import com.fasterxml.jackson.databind.util.EnumValues;
 import com.fasterxml.jackson.dataformat.ron.generator.RONGenerator;
@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * Serialize RON enums.
  */
-public class RONEnumSerializer extends RONSerializer<Enum<?>> {
+class RONEnumSerializer extends RONSerializer<Enum<?>> {
 
     /**
      * This map contains pre-resolved values (since there are ways
@@ -27,12 +27,7 @@ public class RONEnumSerializer extends RONSerializer<Enum<?>> {
     }
 
     @SuppressWarnings("unchecked")
-    public static RONEnumSerializer construct(Class<?> enumClass, SerializationConfig config)
-    {
-        /* 08-Apr-2015, tatu: As per [databind#749], we cannot statically determine
-         *   between name() and toString(), need to construct `EnumValues` with names,
-         *   handle toString() case dynamically (for example)
-         */
+    public static RONEnumSerializer construct(Class<?> enumClass, SerializationConfig config) {
         EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
         return new RONEnumSerializer(v);
     }

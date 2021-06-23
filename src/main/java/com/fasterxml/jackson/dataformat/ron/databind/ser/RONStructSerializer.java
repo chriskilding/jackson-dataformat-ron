@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -12,20 +10,20 @@ import java.io.IOException;
 /**
  * Serialize RON structs. Adapted from Jackson's BeanSerializer.
  */
-public class RONStructSerializer extends RONSerializer<Object> {
+class RONStructSerializer extends RONSerializer<Object> {
 
     /**
      * Writers used for outputting actual property values
      */
-    private final BeanPropertyWriter[] _props;
+    private final BeanPropertyWriter[] properties;
 
     /**
      * Feature flag: whether to serialize the struct with its name.
      */
     private final boolean namedStruct;
 
-    public RONStructSerializer(BeanPropertyWriter[] properties, boolean namedStruct) {
-        _props = properties;
+    RONStructSerializer(BeanPropertyWriter[] properties, boolean namedStruct) {
+        this.properties = properties;
         this.namedStruct = namedStruct;
     }
 
@@ -45,7 +43,7 @@ public class RONStructSerializer extends RONSerializer<Object> {
 
     private void serializeFields(Object value, RONGenerator gen, SerializerProvider serializers) throws IOException {
         try {
-            for (BeanPropertyWriter prop: _props) {
+            for (BeanPropertyWriter prop: properties) {
                 if (prop != null) { // can have nulls in filtered list
                     prop.serializeAsField(value, gen, serializers);
                 }
