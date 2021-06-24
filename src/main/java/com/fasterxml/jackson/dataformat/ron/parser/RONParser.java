@@ -126,6 +126,29 @@ public class RONParser
         _bufferRecyclable = true;
     }
 
+
+    /**
+     * Method called when caller wants to provide input buffer directly,
+     * and it may or may not be recyclable use standard recycle context.
+     *
+     * @since 2.4
+     */
+    public RONParser(IOContext ctxt, int features, Reader r,
+                                 ObjectCodec codec, CharsToNameCanonicalizer st,
+                                 char[] inputBuffer, int start, int end,
+                                 boolean bufferRecyclable)
+    {
+        super(ctxt, features);
+        _reader = r;
+        _inputBuffer = inputBuffer;
+        _inputPtr = start;
+        _inputEnd = end;
+        _objectCodec = codec;
+        _symbols = st;
+        _hashSeed = st.hashSeed();
+        _bufferRecyclable = bufferRecyclable;
+    }
+
     /*
     /**********************************************************
     /* Base method defs, overrides

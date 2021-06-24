@@ -10,7 +10,6 @@ import java.io.IOException;
 
 /**
  * RON equivalent of the Jackson StdSerializer base class.
- * @param <T>
  */
 abstract class RONSerializer<T> extends JsonSerializer<T> {
 

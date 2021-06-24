@@ -2,9 +2,10 @@ package com.fasterxml.jackson.dataformat.ron.databind;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.dataformat.ron.PackageVersion;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import com.fasterxml.jackson.dataformat.ron.databind.deser.RONDeserializerFactory;
 import com.fasterxml.jackson.dataformat.ron.databind.ser.RONSerializerFactory;
 
 public class RONMapper extends ObjectMapper {
@@ -24,8 +25,10 @@ public class RONMapper extends ObjectMapper {
     public RONMapper(RONFactory f) {
         super(f);
 
-        // Default serializer factory is stateless, can just assign
+        // Default de/serializer factories are stateless, can just assign
         _serializerFactory = RONSerializerFactory.instance;
+
+        _deserializationContext = new DefaultDeserializationContext.Impl(RONDeserializerFactory.instance);
     }
 
     /**

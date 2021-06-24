@@ -1,6 +1,7 @@
-package com.fasterxml.jackson.dataformat.ron.databind;
+package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

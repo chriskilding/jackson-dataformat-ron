@@ -1,7 +1,8 @@
-package com.fasterxml.jackson.dataformat.ron.databind;
+package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class EnumWriterTest {
     }
 
     @Ignore("The normal ObjectMapper cannot serialize enum child fields either")
-    public void testWriteEnumWithMultipleParameters() throws JsonProcessingException {
+    public void testWriteEnumWithParameters() throws JsonProcessingException {
         Coordinate coord = Coordinate.Bar;
         String ron = new RONMapper().writeValueAsString(coord);
         assertEquals("Bar(10, 20)", ron);

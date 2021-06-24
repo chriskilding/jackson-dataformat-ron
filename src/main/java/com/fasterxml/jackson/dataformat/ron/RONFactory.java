@@ -1,14 +1,13 @@
 package com.fasterxml.jackson.dataformat.ron;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.dataformat.ron.generator.RONGenerator;
 import com.fasterxml.jackson.dataformat.ron.parser.RONParser;
 
-import java.io.DataInput;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 
 /**
  * Factory used for constructing {@link RONParser} and {@link RONGenerator}
@@ -20,20 +19,22 @@ public class RONFactory extends JsonFactory
 {
 	private static final long serialVersionUID = 1; // 2.6
 
-	/**
-	 * Create a RON generator.
-	 */
 	@Override
 	protected RONGenerator _createGenerator(Writer out, IOContext ctxt) {
 		return new RONGenerator(_generatorFeatures, _objectCodec, out, ctxt);
 	}
 
-	/**
-	 * Create a RON parser.
-	 */
 	@Override
 	protected RONParser _createParser(Reader r, IOContext ctxt) {
 		return new RONParser(ctxt, _parserFeatures, r, _objectCodec, _rootCharSymbols.makeChild(_factoryFeatures));
+	}
+
+	@Override
+	protected RONParser _createParser(char[] data, int offset, int len, IOContext ctxt,
+									   boolean recyclable) {
+		return new RONParser(ctxt, _parserFeatures, null, _objectCodec,
+				_rootCharSymbols.makeChild(_factoryFeatures),
+				data, offset, offset+len, recyclable);
 	}
 
 	@Override

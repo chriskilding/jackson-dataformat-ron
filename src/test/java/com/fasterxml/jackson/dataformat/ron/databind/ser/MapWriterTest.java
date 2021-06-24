@@ -1,6 +1,7 @@
-package com.fasterxml.jackson.dataformat.ron.databind;
+package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class ObjectWriterTest {
+public class MapWriterTest {
 
     @Test
     public void testWriteObject() throws JsonProcessingException {

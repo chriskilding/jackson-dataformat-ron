@@ -14,18 +14,18 @@ developers in the JVM ecosystem to use RON.
 
 The Jackson RON backend supports the following RON types:
 
-| Type | Generator | Parser | ObjectMapper |
---- | --- | --- | ---
-|Scalars|Y|?|Y|
-|Objects|Y|?|Y|
-|Arrays|Y|?|Y|
-|Enums|Y|?|Y|
-|Structs|Y|?|Y|
-|Tuples|Y|?|N<sup>1</sup>|
+| Type | Generator | Parser | ObjectMapper (read) | ObjectMapper (write) |
+--- | --- | --- | --- | ---
+|Scalars|Y|Y|?|Y|
+|Objects|Y|?|?|Y|
+|Arrays|Y|Y|?|Y|
+|Enums|Y|?|?|Y|
+|Structs|Y|?|?|Y|
+|Tuples|Y|?|?|N<sup>1</sup>|
 
 <small><sup>1</sup> Java does not have a native concept of tuples. They can be read or written at the token level, but cannot (currently) be used with the ObjectMapper.</small>
 
-It also supports the following RON features:
+The Jackson RON backend also supports the following RON features:
 
 - Trailing commas (parser ignores them)
 - Comments (parser ignores them)
@@ -123,7 +123,7 @@ In Rust, serialization is driven strongly by convention: objects are mapped to t
 <sup>2</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.
 </small>
 
-To serialize an object, just use the `RONMapper` like you would use the `ObjectMapper`: 
+To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`: 
 
 ```java
 class MapperExample {
@@ -139,10 +139,16 @@ class MapperExample {
         }
     }
     
-    static void run() {
+    static void write() {
         Book book = new Book(true, 1);
-        String s = new RONMapper().writeValueAsString(book);
+        String str = new RONMapper().writeValueAsString(book);
         // => Book(abridged:true,numberOfPages:1)
+    }
+    
+    static void read() {
+        String ron = "Book(abridged:true,numberOfPages:1)";
+        Book book = new RONMapper().readValue(ron, Book.class);
+        // => new Book(true, 1)
     }
 }
 ```
