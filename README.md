@@ -16,9 +16,9 @@ The Jackson RON backend supports the following RON types:
 
 | Type | Generator | Parser | ObjectMapper (read) | ObjectMapper (write) |
 --- | --- | --- | --- | ---
-|Scalars|Y|Y|?|Y|
+|Scalars|Y|?|?|Y|
 |Objects|Y|?|?|Y|
-|Arrays|Y|Y|?|Y|
+|Arrays|Y|?|?|Y|
 |Enums|Y|?|?|Y|
 |Structs|Y|?|?|Y|
 |Tuples|Y|?|?|N<sup>1</sup>|
@@ -114,13 +114,11 @@ In Rust, serialization is driven strongly by convention: objects are mapped to t
 |java.util.Map|Map|
 |Array|Array|
 |java.util.Collection|Array|
-|Enum|Enum<sup>1</sup>|
-|POJO|Struct<sup>2</sup>|
+|Enum|Enum|
+|POJO|Struct<sup>1</sup>|
 
 <small>
-<sup>1</sup> Only the enum itself is serialized; child fields of the enum are not serialized.
-<br>
-<sup>2</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.
+<sup>1</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.
 </small>
 
 To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`: 
