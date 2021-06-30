@@ -44,7 +44,7 @@ public class RONParser
      * Current buffer from which data is read; generally data is read into
      * buffer from input source.
      */
-    protected char[] _inputBuffer;
+    public char[] _inputBuffer;
 
     /**
      * Flag that indicates whether the input buffer is recycable (and

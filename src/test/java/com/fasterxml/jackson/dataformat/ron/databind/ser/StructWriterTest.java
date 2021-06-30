@@ -2,6 +2,7 @@ package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.Book;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -16,17 +17,4 @@ public class StructWriterTest {
         assertEquals("Book(abridged:true,numberOfPages:1)", ron);
     }
 
-    /**
-     * Example POJO based on https://schema.org/Book
-     */
-    static class Book {
-
-        public boolean abridged;
-        public int numberOfPages;
-
-        Book(boolean abridged, int numberOfPages) {
-            this.abridged = abridged;
-            this.numberOfPages = numberOfPages;
-        }
-    }
 }

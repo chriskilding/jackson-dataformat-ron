@@ -43,6 +43,14 @@ public class RONFactory extends JsonFactory
 	}
 
 	/**
+	 * Enforce the use of the Reader API.
+	 */
+	@Override
+	public boolean canUseCharArrays() {
+		return false;
+	}
+
+	/**
 	 * Specialise the return type of the generator, so the user does not need to downcast it.
 	 */
 	@Override

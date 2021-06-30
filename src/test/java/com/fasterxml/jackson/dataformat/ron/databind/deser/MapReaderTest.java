@@ -10,7 +10,6 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-// TODO ensure field ordering observed
 public class MapReaderTest extends ContainerTest {
 
     private static <K,V> Map<K, V> mapOf(K key, V value) {
@@ -36,14 +35,14 @@ public class MapReaderTest extends ContainerTest {
     @Override
     public void testOne() throws IOException {
         String ron = "{\"foo\":1}";
-        Map<String, Object> map = new RONMapper().readValue(ron, Map.class);
+        Map<String, Integer> map = new RONMapper().readValue(ron, Map.class);
         assertEquals(mapOf("foo", 1), map);
     }
 
     @Override
     public void testMultiple() throws IOException {
-        String ron = "{\"foo\":1,\"bar\":2}";
+        String ron = "{\"foo\":1,\"bar\":true}";
         Map<String, Object> map = new RONMapper().readValue(ron, Map.class);
-        assertEquals(mapOf("foo", 1, "bar", 2), map);
+        assertEquals(mapOf("foo", 1, "bar", true), map);
     }
 }

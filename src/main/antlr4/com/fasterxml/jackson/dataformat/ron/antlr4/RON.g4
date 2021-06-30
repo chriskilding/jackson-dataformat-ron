@@ -3,7 +3,7 @@
 grammar RON;
 
 root
-   : value
+   : value EOF
    ;
 
 tuple
@@ -11,12 +11,13 @@ tuple
    | UNIT
    ;
 
+// TODO support enums with child fields
 enumeration
-   : BAREWORD tuple?
+   : BAREWORD UNIT?
    ;
 
 struct
-    : BAREWORD '(' structEntry (',' structEntry)* ','? ')';
+    : BAREWORD? '(' structEntry (',' structEntry)* ','? ')';
 
 structEntry
     : BAREWORD ':' value
@@ -65,11 +66,10 @@ UNIT: '(' ')';
 
 STRING: '"' (ESC | SAFECODEPOINT)* '"';
 
-// struct keys, enum names, struct names
-fragment BAREWORD: BARECHAR*;
+NUMBER: '-'? INT ('.' [0-9] +)? EXP?;
 
-fragment BARECHAR:
-    ~ [\u0000-\u001F];
+// struct keys, enum names, struct names
+BAREWORD: [a-zA-Z] [0-9a-zA-Z]*;
 
 fragment ESC:
     '\\' (["\\/bfnrt] | UNICODE);
@@ -82,8 +82,6 @@ fragment HEX:
 
 fragment SAFECODEPOINT:
     ~ ["\\\u0000-\u001F];
-
-NUMBER: '-'? INT ('.' [0-9] +)? EXP?;
 
 fragment INT
    : '0' | [1-9] [0-9]*;

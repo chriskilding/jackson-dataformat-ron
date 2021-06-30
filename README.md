@@ -16,11 +16,11 @@ The Jackson RON backend supports the following RON types:
 
 | Type | Generator | Parser | ObjectMapper (read) | ObjectMapper (write) |
 --- | --- | --- | --- | ---
-|Scalars|Y|?|?|Y|
-|Objects|Y|?|?|Y|
-|Arrays|Y|?|?|Y|
+|Scalars|Y|?|Y|Y|
+|Objects|Y|?|Y|Y|
+|Arrays|Y|?|Y|Y|
 |Enums|Y|?|?|Y|
-|Structs|Y|?|?|Y|
+|Structs|Y|?|Y|Y|
 |Tuples|Y|?|?|N<sup>1</sup>|
 
 <small><sup>1</sup> Java does not have a native concept of tuples. They can be read or written at the token level, but cannot (currently) be used with the ObjectMapper.</small>
@@ -155,6 +155,6 @@ class MapperExample {
 
 The following limitations are in place due to the prototype nature of this code:
 
-- The `RONGenerator` uses direct calls to its delegate `Writer`. It does not use copy buffers.
+- The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array de/serializers.
 - There is no pretty printer for RON.
 - There are no custom de/serialization `Features` for the RONMapper.
