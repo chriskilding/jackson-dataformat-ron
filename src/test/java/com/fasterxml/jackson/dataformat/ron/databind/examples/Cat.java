@@ -8,6 +8,10 @@ public class Cat implements Animal {
 
     public boolean meow;
 
+    public Cat() {
+        // default constructor
+    }
+
     public Cat(boolean meow) {
         this.meow = meow;
     }

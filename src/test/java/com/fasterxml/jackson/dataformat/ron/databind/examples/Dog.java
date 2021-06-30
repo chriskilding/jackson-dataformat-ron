@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.dataformat.ron.databind.examples;
 
-import com.fasterxml.jackson.dataformat.ron.databind.deser.NamedStructReaderTest;
-
 import java.util.Objects;
 
 public class Dog implements Animal {
-    int barks;
+    public int barks;
+
+    public Dog() {
+        // default constructor
+    }
 
     public Dog(int barks) {
         this.barks = barks;
