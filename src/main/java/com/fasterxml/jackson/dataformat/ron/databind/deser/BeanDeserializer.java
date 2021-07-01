@@ -2,6 +2,11 @@ package com.fasterxml.jackson.dataformat.ron.databind.deser;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -53,18 +58,44 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     @Override
     public Object visitStruct(RONParser.StructContext ctx) {
         final JavaType javaType = javaTypes.peek();
-        if (!javaType.isConcrete()) {
-            final String simpleName = ctx.BAREWORD().getText();
+
+        if (javaType.isConcrete()) {
+            return buildFromStruct(javaType.getRawClass(), ctx);
+        } else {
+            final String structName = ctx.BAREWORD().getText();
             // if null - we can't proceed unless we use jackson class annotations for polymorphism
 
-            // something like...
-            // 1. get the known subclasses of the abstract javaType
-            // 2. filter to just subclasses with same name as the named struct
-            // 2. choose the subclass in the nearest package/classloader to us
+            final Class<?> matchingSubclass = findMatchingSubclass(javaType, structName);
+
+            if (matchingSubclass != null) {
+                return buildFromStruct(matchingSubclass, ctx);
+            }
         }
 
+        return null;
+    }
+
+    /**
+     * Find the subclass that matches the RON struct's name. Or null if it was not found.
+     */
+    private Class<?> findMatchingSubclass(JavaType javaType, String structName) {
+        final SubtypeResolver subtypeResolver = deserializationConfig.getSubtypeResolver();
+        final MapperConfig<?> cfg = deserializationConfig;
+        final AnnotatedClass baseType = AnnotatedClassResolver.resolveWithoutSuperTypes(cfg, javaType, cfg);
+        final Collection<NamedType> namedTypes = subtypeResolver.collectAndResolveSubtypesByClass(cfg, baseType);
+        for (NamedType namedType: namedTypes) {
+            final Class<?> foundClass = namedType.getType();
+            final String foundClassName = foundClass.getSimpleName();
+            if (foundClassName.equals(structName)) {
+                return foundClass;
+            }
+        }
+        return null;
+    }
+
+    private Object buildFromStruct(Class<?> klass, RONParser.StructContext ctx) {
         try {
-            final Constructor<?> ctor = javaType.getRawClass().getDeclaredConstructors()[0];
+            final Constructor<?> ctor = klass.getDeclaredConstructors()[0];
             final Object newInstance = ctor.newInstance();
 
             // set fields recursively
@@ -121,7 +152,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     public Object visitValue(RONParser.ValueContext ctx) {
         final JavaType javaType = javaTypes.peek();
 
-        // FIXME the javaType to parse as must change contextually as recursion happens (push/pop)
         if (javaType.isTypeOrSubTypeOf(String.class)) {
             return valueVisitor.visitString(ctx);
         }

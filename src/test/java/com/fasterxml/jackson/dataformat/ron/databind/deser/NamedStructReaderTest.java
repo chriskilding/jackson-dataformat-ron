@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.dataformat.ron.databind.deser;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.*;
@@ -17,6 +16,7 @@ public class NamedStructReaderTest extends ContainerTest {
     @Ignore("Behavior not yet known for unit structs")
     @Override
     public void testEmpty() throws IOException {
+        // FIXME: deserializer currently treats this as an enum
         String ron = "Empty()";
         Empty struct = new RONMapper().readValue(ron, Empty.class);
         assertEquals(new Empty(), struct);
@@ -42,18 +42,6 @@ public class NamedStructReaderTest extends ContainerTest {
         assertEquals(new Dog(1), dog);
 
         Animal cat = new RONMapper().readValue("Cat(meow:true)", Animal.class);
-        assertEquals(new Cat(true), cat);
-    }
-
-    /**
-     * Show what happens with JSON and regular ObjectMapper
-     */
-    @Test
-    public void testReferencePolymorphicBehavior() throws IOException {
-        Animal dog = new ObjectMapper().readValue("{\"@type\":\"Dog\",\"barks\":1}", Animal.class);
-        assertEquals(new Dog(1), dog);
-
-        Animal cat = new ObjectMapper().readValue("{\"@type\":\"Cat\",\"meow\":true}", Animal.class);
         assertEquals(new Cat(true), cat);
     }
 

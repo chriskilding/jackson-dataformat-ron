@@ -5,8 +5,7 @@ Experimental [Rust Object Notation](https://github.com/ron-rs/ron) (RON) support
 ## Overview
 
 There are times when JSON is too limited to represent the concepts you need to serialize. JSON notably lacks support for
-types, enums, and tuples. In these situations, RON provides a more expressive syntax that can handle these concepts. (
-For a longer explanation of when and why you would want to use RON, see the upstream
+types, enums, and tuples. In these situations, RON provides a more expressive syntax that can handle these concepts. (For a longer explanation of when and why you would want to use RON, see the upstream
 project: https://github.com/ron-rs/ron.)
 
 This project is a prototype to find out whether it is feasible for RON to be a backend for Jackson, and thus allow
@@ -21,9 +20,10 @@ The Jackson RON backend supports the following RON types:
 |Arrays|Y|?|Y|Y|
 |Enums|Y|?|?|Y|
 |Structs|Y|?|Y|Y|
-|Tuples|Y|?|?|N<sup>1</sup>|
+|Tuples|Y|?|N<sup>1</sup>|N<sup>1</sup>|
 
-<small><sup>1</sup> Java does not have a native concept of tuples. They can be read or written at the token level, but cannot (currently) be used with the ObjectMapper.</small>
+<small><sup>1</sup> Java does not have a native concept of tuples. They can be read or written at the token level, but
+cannot (currently) be used with the ObjectMapper.</small>
 
 The Jackson RON backend also supports the following RON features:
 
@@ -58,11 +58,11 @@ Use the `RONGenerator`, `RONParser`, or `RONMapper` from your code as you would 
 To write RON constructs, call the RON-specific `writeXXX` methods on the `RONGenerator`.
 
 - Enums:
-  - Simple enums: `writeEnum(String)`
-  - Compound enums: `writeStartEnum(String)` / `writeEndEnum()`
+    - Simple enums: `writeEnum(String)`
+    - Compound enums: `writeStartEnum(String)` / `writeEndEnum()`
 - Structs:
-  - Simple structs: `writeStartStruct()` / `writeEndStruct()`
-  - Named structs: `writeStartStruct(String)` / `writeEndStruct()`
+    - Simple structs: `writeStartStruct()` / `writeEndStruct()`
+    - Named structs: `writeStartStruct(String)` / `writeEndStruct()`
 - Tuples: `writeStartTuple()` / `writeEndTuple()`
 
 ```java
@@ -107,7 +107,8 @@ public class ParserExample {
 
 ### RONMapper
 
-In Rust, serialization is driven strongly by convention: objects are mapped to their closest RON type. We follow this convention as closely as possible.
+In Rust, serialization is driven strongly by convention: objects are mapped to their closest RON type. We follow this
+convention as closely as possible.
 
 | Java Type | RON Type |
 --- | ---
@@ -121,11 +122,11 @@ In Rust, serialization is driven strongly by convention: objects are mapped to t
 <sup>1</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.
 </small>
 
-To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`: 
+To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`:
 
 ```java
 class MapperExample {
-    
+
     // A typical POJO
     static class Book {
         public boolean abridged;
@@ -136,13 +137,13 @@ class MapperExample {
             this.numberOfPages = numberOfPages;
         }
     }
-    
+
     static void write() {
         Book book = new Book(true, 1);
         String str = new RONMapper().writeValueAsString(book);
         // => Book(abridged:true,numberOfPages:1)
     }
-    
+
     static void read() {
         String ron = "Book(abridged:true,numberOfPages:1)";
         Book book = new RONMapper().readValue(ron, Book.class);
@@ -155,6 +156,98 @@ class MapperExample {
 
 The following limitations are in place due to the prototype nature of this code:
 
-- The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array de/serializers.
+- The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array
+  de/serializers.
 - There is no pretty printer for RON.
 - There are no custom de/serialization `Features` for the RONMapper.
+
+## Examples
+
+Examples of things you can do with Jackson + RON that would be cumbersome or impossible with Jackson + JSON.
+
+### Polymorphism with named structs
+
+RON's named structs make polymorphism and heterogenous data arrays easier.
+
+Imagine you have a class hierarchy like this:
+
+```java
+public interface Animal {
+    String sound();
+}
+
+public class Cat implements Animal {
+    public boolean meow;
+
+    public Cat() {}
+
+    public String sound() {
+        return "meow";
+    }
+}
+
+public class Dog implements Animal {
+    public int barks;
+
+    public Dog() {}
+
+    public String sound() {
+        return "bark";
+    }
+}
+```
+
+With JSON you have to use one of **several** **informal** strategies to encode the type information in a JSON object (options
+include a property e.g. `@type`, a wrapper object acting as a fake union type, or a wrapper array):
+
+```json
+{
+  "@type": "Dog",
+  "barks": 2
+}
+```
+
+```json
+{
+  "@type": "Cat",
+  "meow": true
+}
+```
+
+You also have to tell Jackson which encoding strategy you're using, by annotating the supertype:
+
+```java
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Cat.class),
+        @JsonSubTypes.Type(value = Dog.class),
+})
+public interface Animal {
+    String sound();
+}
+```
+
+By contrast, RON struct names mean there is **one** **standardised** way to encode the type information.
+
+The RON looks like this:
+
+```ron
+Dog(barks: 2)
+```
+
+```ron
+Cat(meow: true)
+```
+
+The annotations are simply the list of possible subtypes:
+
+```java
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Cat.class),
+        @JsonSubTypes.Type(value = Dog.class),
+})
+public interface Animal {
+    String sound();
+}
+```
