@@ -43,19 +43,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     }
 
     @Override
-    public Object visitMap(RONParser.MapContext ctx) {
-        final JavaType javaType = javaTypes.peek();
-        // assume it is indeed a map class
-        final Map<String, Object> map = new HashMap<>();
-
-        for (RONParser.MapEntryContext entry: ctx.mapEntry()) {
-            final String key = entry.STRING().getText();
-        }
-
-        return map;
-    }
-
-    @Override
     public Object visitStruct(RONParser.StructContext ctx) {
         final JavaType javaType = javaTypes.peek();
 
@@ -120,30 +107,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     }
 
     @Override
-    public Object visitMapEntry(RONParser.MapEntryContext ctx) {
-        return super.visitMapEntry(ctx);
-    }
-
-    @Override
-    public Object visitArray(RONParser.ArrayContext ctx) {
-        final JavaType javaType = javaTypes.peek();
-
-        final JavaType[] typeParameters = javaType.findTypeParameters(Object.class);
-
-        try {
-            final Constructor<?> ctor = javaType.getRawClass().getDeclaredConstructors()[0];
-            final Object newInstance = ctor.newInstance();
-            for (RONParser.ValueContext value : ctx.value()) {
-                final Method addMethod = newInstance.getClass().getDeclaredMethod("add");
-            }
-
-            return newInstance;
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            throw new IllegalStateException("Can't instantiate the class from the array", e);
-        }
-    }
-
-    @Override
     public Object visitRoot(RONParser.RootContext ctx) {
         return this.visit(ctx.value());
     }
@@ -192,11 +155,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
             return this.visitEnumeration(ctx.enumeration());
         }
 
-        if (ctx.struct() != null) {
-            return this.visitStruct(ctx.struct());
-        }
-
-        return null;
+        return this.visitStruct(ctx.struct());
     }
 
 

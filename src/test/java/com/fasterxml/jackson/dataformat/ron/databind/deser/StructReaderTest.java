@@ -3,6 +3,9 @@ package com.fasterxml.jackson.dataformat.ron.databind.deser;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.*;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Cat;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Dog;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Jellyfish;
 import org.junit.Test;
 
 import java.io.IOException;

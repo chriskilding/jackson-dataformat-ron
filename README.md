@@ -20,24 +20,23 @@ The Jackson RON backend supports the following RON types:
 |Scalars|Y|?|Y|Y|
 |Maps|Y|?|Y|Y|
 |Arrays|Y|?|Y|Y|
-|Enums|Y|?|?|?|
 |Structs|Y|?|Y|Y|
-|Tuples|Y|?|N<sup>1</sup>|N<sup>1</sup>|
+|Enums|Y|?|Y<sup>1</sup>|Y<sup>1</sup>|
+|Tuples|Y|?|N<sup>2</sup>|N<sup>2</sup>|
 
-<small><sup>1</sup> Java does not have a native concept of tuples. They can be read or written at the token level, but
-cannot (currently) be used with the ObjectMapper.</small>
+<small><sup>1</sup> Java enums are simple, and cannot have user-defined child fields. Therefore the ObjectMapper only supports simple RON enums without child fields.</small>
+
+<small><sup>2</sup> Java does not have a native concept of tuples. Therefore the ObjectMapper does not support them.</small>
 
 The Jackson RON backend also supports the following RON features:
 
 - Trailing commas (parser ignores them)
 - Comments (parser ignores them)
 
-### Outcomes
+The ObjectMapper RON backend only supports the subset of RON that has equivalents in Java's type system. This is to preserve the property of **round-trip compatibility**, i.e. `serialize(deserialize(x)) = x` using default ObjectMapper parameters. A longer explanation follows...
 
-The prototype has yielded the following outcomes:
+It would be possible, with an extension like a `@RONFormat(shape = Shape.ENUM)` annotation, to manually instruct the ObjectMapper to de/serialize a RON enum `Foo(1, true)` into a POJO with a matching `Foo(int, boolean)` constructor. The trouble is that if this manual override is missing, the default serialization of the POJO is ambiguous; the ObjectMapper cannot know that the POJO should turn back into a RON enum. Therefore it is safer to not support RON types beyond those with Java equivalents; this avoids unexpected surprises when round-tripping data.
 
-- Though RON was made for a language (Rust) with a more powerful type system than Java's, it is not alien to use from Java, and has tangible benefits for Java programs.
-- A couple of Jackson's `protected final` methods need to be changed to allow a RON backend to override their behavior. See code comments for details.
 
 ## Setup
 
@@ -124,12 +123,10 @@ convention as closely as possible.
 |java.util.Map|Map|
 |Array|Array|
 |java.util.Collection|Array|
-|Enum|Enum|
-|POJO|Struct<sup>1</sup>|
+|Enum|Enum<sup>1</sup>|
+|POJO|Struct|
 
-<small>
-<sup>1</sup> Java does not have a native concept of tuples, so POJOs can only be mapped to structs at the moment.
-</small>
+<small><sup>1</sup> Only simple enums (without child fields) are supported.</small>
 
 To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`:
 

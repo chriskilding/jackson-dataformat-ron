@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.ron.databind.examples;
+package com.fasterxml.jackson.dataformat.ron.databind.examples.animal;
 
 public class Jellyfish implements Animal {
 

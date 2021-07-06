@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.*;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Cat;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Dog;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Jellyfish;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,5 +34,12 @@ public class StructWriterTest extends ContainerTest {
         Cat animal = new Cat(true, 2);
         String ron = new RONMapper().writeValueAsString(animal);
         assertEquals("Cat(happy:true,meows:2)", ron);
+    }
+
+    @Test
+    public void testNested() throws IOException {
+        Nested n = new Nested(1, new B(2));
+        String ron = new RONMapper().writeValueAsString(n);
+        assertEquals("Nested(a:1,b:B(c:2))", ron);
     }
 }
