@@ -1,19 +1,19 @@
 package com.fasterxml.jackson.dataformat.ron.databind.examples;
 
-import com.fasterxml.jackson.dataformat.ron.databind.deser.NamedStructReaderTest;
-
 import java.util.Objects;
 
 public class Cat implements Animal {
 
-    public boolean meow;
+    public boolean happy;
+    public int meows;
 
     public Cat() {
         // default constructor
     }
 
-    public Cat(boolean meow) {
-        this.meow = meow;
+    public Cat(boolean happy, int meows) {
+        this.happy = happy;
+        this.meows = meows;
     }
 
     @Override
@@ -21,12 +21,12 @@ public class Cat implements Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cat cat = (Cat) o;
-        return meow == cat.meow;
+        return happy == cat.happy && meows == cat.meows;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(meow);
+        return Objects.hash(happy, meows);
     }
 
     @Override

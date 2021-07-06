@@ -2,6 +2,8 @@
 
 Experimental [Rust Object Notation](https://github.com/ron-rs/ron) (RON) support for Jackson.
 
+This project is a prototype. **It is not suitable for production use**.
+
 ## Overview
 
 There are times when JSON is too limited to represent the concepts you need to serialize. JSON notably lacks support for
@@ -16,9 +18,9 @@ The Jackson RON backend supports the following RON types:
 | Type | Generator | Parser | ObjectMapper (read) | ObjectMapper (write) |
 --- | --- | --- | --- | ---
 |Scalars|Y|?|Y|Y|
-|Objects|Y|?|Y|Y|
+|Maps|Y|?|Y|Y|
 |Arrays|Y|?|Y|Y|
-|Enums|Y|?|?|Y|
+|Enums|Y|?|?|?|
 |Structs|Y|?|Y|Y|
 |Tuples|Y|?|N<sup>1</sup>|N<sup>1</sup>|
 
@@ -29,6 +31,13 @@ The Jackson RON backend also supports the following RON features:
 
 - Trailing commas (parser ignores them)
 - Comments (parser ignores them)
+
+### Outcomes
+
+The prototype has yielded the following outcomes:
+
+- Though RON was made for a language (Rust) with a more powerful type system than Java's, it is not alien to use from Java, and has tangible benefits for Java programs.
+- A couple of Jackson's `protected final` methods need to be changed to allow a RON backend to override their behavior. See code comments for details.
 
 ## Setup
 
@@ -154,12 +163,12 @@ class MapperExample {
 
 ## Limitations
 
-The following limitations are in place due to the prototype nature of this code:
+The following design limitations are in place due to the prototype nature of this code:
 
 - The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array
   de/serializers.
 - There is no pretty printer for RON.
-- There are no custom de/serialization `Features` for the RONMapper.
+- The `RONMapper` has no custom de/serialization `Features`.
 
 ## Examples
 
@@ -217,11 +226,10 @@ include a property e.g. `@type`, a wrapper object acting as a fake union type, o
 You also have to tell Jackson which encoding strategy you're using, by annotating the supertype:
 
 ```java
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Cat.class),
-        @JsonSubTypes.Type(value = Dog.class),
+        @JsonSubTypes.Type(Cat.class),
+        @JsonSubTypes.Type(Dog.class),
 })
 public interface Animal {
     String sound();
@@ -244,8 +252,8 @@ The annotations are simply the list of possible subtypes:
 
 ```java
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Cat.class),
-        @JsonSubTypes.Type(value = Dog.class),
+        @JsonSubTypes.Type(Cat.class),
+        @JsonSubTypes.Type(Dog.class),
 })
 public interface Animal {
     String sound();
