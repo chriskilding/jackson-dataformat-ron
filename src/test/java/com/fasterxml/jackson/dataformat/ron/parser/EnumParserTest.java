@@ -24,6 +24,7 @@ public class EnumParserTest extends ContainerTest {
         Reader ron = new StringReader("Foo(1)");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals("Foo", parser.nextIdentifier());
             assertEquals(RONToken.START_ENUM, parser.nextToken());
             assertEquals(1, parser.nextIntValue(-1));
             assertEquals(RONToken.END_ENUM, parser.nextToken());
@@ -35,6 +36,7 @@ public class EnumParserTest extends ContainerTest {
         Reader ron = new StringReader("Foo(1,true)");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals("Foo", parser.nextIdentifier());
             assertEquals(RONToken.START_ENUM, parser.nextToken());
             assertEquals(1, parser.nextIntValue(-1));
             assertTrue(parser.nextBooleanValue());
@@ -47,7 +49,7 @@ public class EnumParserTest extends ContainerTest {
         Reader ron = new StringReader("Foo");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            assertEquals(RONToken.ENUM, parser.nextToken());
+            assertEquals("Foo", parser.nextIdentifier());
         }
     }
 
@@ -56,6 +58,7 @@ public class EnumParserTest extends ContainerTest {
         Reader ron = new StringReader("Foo(1,)");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals("Foo", parser.nextIdentifier());
             assertEquals(RONToken.START_ENUM, parser.nextToken());
             assertEquals(1, parser.nextIntValue(-1));
             assertEquals(RONToken.END_ENUM, parser.nextToken());

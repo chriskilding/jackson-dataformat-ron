@@ -14,9 +14,9 @@ public class RONTokenConverter {
                 return JsonToken.START_ARRAY;
             case END_ARRAY:
                 return JsonToken.END_ARRAY;
-            case START_OBJECT:
+            case START_MAP:
                 return JsonToken.START_OBJECT;
-            case END_OBJECT:
+            case END_MAP:
                 return JsonToken.END_OBJECT;
             case TRUE:
                 return JsonToken.VALUE_TRUE;

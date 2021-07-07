@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.*;
+import com.fasterxml.jackson.dataformat.ron.antlr4.RONLexer;
+import org.antlr.v4.runtime.*;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
 
@@ -643,6 +645,49 @@ public class RONParser
     /* Public API, traversal
     /**********************************************************
      */
+
+    /**
+     * An alternative to nextToken() that can return the full range of RON tokens.
+     */
+    public RONToken nextRONToken() throws IOException {
+        Reader reader = this._reader;
+        // TODO init these just once, in an open() method or similar
+        CharStream charStream = CharStreams.fromReader(reader);
+        RONLexer lexer = new RONLexer(charStream);
+
+        Token token = lexer.nextToken();
+
+        return toRONToken(token);
+    }
+
+    private static RONToken toRONToken(Token token) {
+        switch (token.getType()) {
+            case RONLexer.TRUE:
+                return RONToken.TRUE;
+            case RONLexer.FALSE:
+                return RONToken.FALSE;
+            default:
+                // FIXME implement the rest
+                return null;
+        }
+    }
+
+    private static JsonToken toJsonToken(Token token) {
+        switch (token.getType()) {
+            case RONLexer.TRUE:
+                return JsonToken.VALUE_TRUE;
+            case RONLexer.FALSE:
+                return JsonToken.VALUE_FALSE;
+            case RONLexer.INF:
+            case RONLexer.MINUS_INF:
+            case RONLexer.NAN:
+                return JsonToken.VALUE_NUMBER_FLOAT;
+            case RONLexer.STRING:
+                return JsonToken.VALUE_STRING;
+            default:
+                return null;
+        }
+    }
 
     /**
      * @return Next token from the stream, if any found, or null
@@ -2809,5 +2854,13 @@ public class RONParser
             _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
         }
+    }
+
+    /**
+     * Get the next RON identifier (struct name, struct key, enum name).
+     */
+    public String nextIdentifier() throws IOException {
+        _reportUnsupportedOperation();
+        return null;
     }
 }

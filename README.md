@@ -33,10 +33,19 @@ The Jackson RON backend also supports the following RON features:
 - Trailing commas (parser ignores them)
 - Comments (parser ignores them)
 
-The ObjectMapper RON backend only supports the subset of RON that has equivalents in Java's type system. This is to preserve the property of **round-trip compatibility**, i.e. `serialize(deserialize(x)) = x` using default ObjectMapper parameters. A longer explanation follows...
+### Limits of RON support
 
-It would be possible, with an extension like a `@RONFormat(shape = Shape.ENUM)` annotation, to manually instruct the ObjectMapper to de/serialize a RON enum `Foo(1, true)` into a POJO with a matching `Foo(int, boolean)` constructor. The trouble is that if this manual override is missing, the default serialization of the POJO is ambiguous; the ObjectMapper cannot know that the POJO should turn back into a RON enum. Therefore it is safer to not support RON types beyond those with Java equivalents; this avoids unexpected surprises when round-tripping data.
+The low-level `RONParser` and `RONGenerator` support all of RON.
 
+The high-level `RONMapper` only supports the subset of RON types that have equivalents in Java's type system. This is
+to preserve the property of **round-trip compatibility**, i.e. `serialize(deserialize(x)) = x` using default
+ObjectMapper parameters.
+
+Long explanation: It would be possible, with an extension like a `@RONFormat(shape = Shape.ENUM)` annotation, to
+manually instruct the ObjectMapper to de/serialize a RON enum `Foo(1, true)` into a POJO with a
+matching `Foo(int, boolean)` constructor. The trouble is that if this manual override is missing, the default
+serialization of the POJO is ambiguous; the ObjectMapper cannot know that the POJO should turn back into a RON enum.
+It might serialize it as a struct instead, creating an unexpected surprise for the user. Therefore it is safer to not support RON types beyond those with Java equivalents.
 
 ## Setup
 
@@ -49,7 +58,6 @@ mvn clean install
 Then add the dependency to your Maven POM:
 
 ```xml
-
 <dependency>
     <groupId>com.fasterxml.jackson.dataformat</groupId>
     <artifactId>jackson-dataformat-ron</artifactId>
@@ -63,14 +71,12 @@ Use the `RONGenerator`, `RONParser`, or `RONMapper` from your code as you would 
 
 ### RONGenerator
 
-To write RON constructs, call the RON-specific `writeXXX` methods on the `RONGenerator`.
+To write RON constructs, call the RON-specific `writeXXX` methods on the `RONGenerator`:
 
-- Enums:
-    - Simple enums: `writeEnum(String)`
-    - Compound enums: `writeStartEnum(String)` / `writeEndEnum()`
-- Structs:
-    - Simple structs: `writeStartStruct()` / `writeEndStruct()`
-    - Named structs: `writeStartStruct(String)` / `writeEndStruct()`
+- Enums: `writeStartEnum(String)` / `writeEndEnum()`
+- Simple enums: `writeEnum(String)`
+- Structs: `writeStartStruct()` / `writeEndStruct()`
+- Named structs: `writeStartStruct(String)` / `writeEndStruct()`
 - Tuples: `writeStartTuple()` / `writeEndTuple()`
 
 ```java
@@ -93,21 +99,50 @@ public class GeneratorExample {
 
 ### RONParser
 
-TODO document
+To read RON constructs, call the RON-specific reader methods on the RONParser:
+
+- `nextIdentifier()` (struct names, struct keys, enum names)
+- `nextRONToken()` (any token)
+
+Note: `nextToken()` is provided for compatibility with Jackson's `JsonParser` supertype, but it is fragile. It only works if the input is constrained to the JSON subset of RON. You should generally use `nextRONToken()` instead.
 
 ```java
 public class ParserExample {
-    public void run() {
+
+    void parseStruct() {
         Reader ron = new StringReader("Person(givenName:\"Joe\",familyName:\"Bloggs\")");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            // TODO decide how to handle struct name
-            parser.nextToken(); // enter struct
-            String field1 = parser.nextFieldName();     // => "givenName"
-            String givenName = parser.nextTextValue();  // => "Joe"
-            String field2 = parser.nextFieldName();     // => "familyName"
-            String familyName = parser.nextTextValue(); // => "Bloggs"
-            parser.nextToken(); // exit struct
+            String ident1 = parser.nextIdentifier();     // => "Person"
+            parser.nextRONToken();                       // enter struct
+            String field1 = parser.nextIdentifier();     // => "givenName"
+            String givenName = parser.nextTextValue();   // => "Joe"
+            String field2 = parser.nextIdentifier();     // => "familyName"
+            String familyName = parser.nextTextValue();  // => "Bloggs"
+            parser.nextRONToken();                       // exit struct
+        }
+    }
+
+    void parseTuple() {
+        Reader ron = new StringReader("(1, true)");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            parser.nextRONToken();                       // enter tuple
+            int field1 = parser.nextIntValue();          // => 1
+            boolean field2 = parser.nextBooleanValue();  // => true
+            parser.nextRONToken();                       // exit tuple
+        }
+    }
+    
+    void parseEnum() {
+        Reader ron = new StringReader("Foo(1, true)");
+  
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            String enumName = parser.nextIdentifier();   // => "Foo"
+            parser.nextRONToken();                       // enter enum
+            int field1 = parser.nextIntValue();          // => 1
+            boolean field2 = parser.nextBooleanValue();  // => true
+            parser.nextRONToken();                       // exit enum
         }
     }
 }
@@ -144,28 +179,19 @@ class MapperExample {
         }
     }
 
-    static void write() {
+    void write() {
         Book book = new Book(true, 1);
         String str = new RONMapper().writeValueAsString(book);
         // => Book(abridged:true,numberOfPages:1)
     }
 
-    static void read() {
+    void read() {
         String ron = "Book(abridged:true,numberOfPages:1)";
         Book book = new RONMapper().readValue(ron, Book.class);
         // => new Book(true, 1)
     }
 }
 ```
-
-## Limitations
-
-The following design limitations are in place due to the prototype nature of this code:
-
-- The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array
-  de/serializers.
-- There is no pretty printer for RON.
-- The `RONMapper` has no custom de/serialization `Features`.
 
 ## Examples
 
@@ -185,7 +211,8 @@ public interface Animal {
 public class Cat implements Animal {
     public boolean meow;
 
-    public Cat() {}
+    public Cat() {
+    }
 
     public String sound() {
         return "meow";
@@ -195,7 +222,8 @@ public class Cat implements Animal {
 public class Dog implements Animal {
     public int barks;
 
-    public Dog() {}
+    public Dog() {
+    }
 
     public String sound() {
         return "bark";
@@ -203,8 +231,7 @@ public class Dog implements Animal {
 }
 ```
 
-With JSON you have to use one of **several** **informal** strategies to encode the type information in a JSON object (options
-include a property e.g. `@type`, a wrapper object acting as a fake union type, or a wrapper array):
+With JSON you have to use one of **several** **informal** ways to encode the type information in a JSON object (options include a synthetic property e.g. `@type`, or a fake union type e.g. wrapper object, wrapper array):
 
 ```json
 {
@@ -220,7 +247,7 @@ include a property e.g. `@type`, a wrapper object acting as a fake union type, o
 }
 ```
 
-You also have to tell Jackson which encoding strategy you're using, by annotating the supertype:
+You must also annotate the supertype to tell Jackson which encoding strategy you're using:
 
 ```java
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -256,3 +283,12 @@ public interface Animal {
     String sound();
 }
 ```
+
+## Limitations
+
+The following design limitations are in place due to the prototype nature of this code:
+
+- The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array
+  de/serializers.
+- There is no pretty printer for RON. The `RONGenerator` produces the compact form, without whitespace.
+- The `RONMapper` does not support custom de/serialization `Features`.

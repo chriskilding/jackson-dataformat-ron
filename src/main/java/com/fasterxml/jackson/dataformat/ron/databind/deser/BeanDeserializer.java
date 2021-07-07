@@ -35,7 +35,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     public Object visitEnumeration(RONParser.EnumerationContext ctx) {
         final JavaType javaType = javaTypes.peek();
 
-        final String name = ctx.BAREWORD().getText();
+        final String name = ctx.IDENTIFIER().getText();
 
         final EnumResolver resolver = EnumResolver.constructFor(deserializationConfig, javaType.getRawClass());
         final CompactStringObjectMap lookupByName = resolver.constructLookup();
@@ -49,7 +49,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
         if (javaType.isConcrete()) {
             return buildFromStruct(javaType.getRawClass(), ctx);
         } else {
-            final String structName = ctx.BAREWORD().getText();
+            final String structName = ctx.IDENTIFIER().getText();
             // if null - we can't proceed unless we use jackson class annotations for polymorphism
 
             final Class<?> matchingSubclass = findMatchingSubclass(javaType, structName);
@@ -87,7 +87,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
 
             // set fields recursively
             for (RONParser.StructEntryContext entry: ctx.structEntry()) {
-                final String fieldName = entry.BAREWORD().getText();
+                final String fieldName = entry.IDENTIFIER().getText();
 
                 final Field childField = newInstance.getClass().getDeclaredField(fieldName);
                 final Class<?> childKlass = childField.getType();

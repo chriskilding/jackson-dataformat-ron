@@ -13,14 +13,14 @@ tuple
 
 // TODO support enums with child fields
 enumeration
-   : BAREWORD UNIT?
+   : IDENTIFIER UNIT?
    ;
 
 struct
-    : BAREWORD? '(' structEntry (',' structEntry)* ','? ')';
+    : IDENTIFIER? '(' structEntry (',' structEntry)* ','? ')';
 
 structEntry
-    : BAREWORD ':' value
+    : IDENTIFIER ':' value
     ;
 
 map
@@ -69,7 +69,7 @@ STRING: '"' (ESC | SAFECODEPOINT)* '"';
 NUMBER: '-'? INT ('.' [0-9] +)? EXP?;
 
 // struct keys, enum names, struct names
-BAREWORD: [a-zA-Z] [0-9a-zA-Z]*;
+IDENTIFIER: [a-zA-Z] [0-9a-zA-Z]*;
 
 fragment ESC:
     '\\' (["\\/bfnrt] | UNICODE);

@@ -17,7 +17,10 @@ public class StructParserTest extends ContainerTest {
     public void testEmpty() throws IOException {
         Reader ron = new StringReader("()");
 
-        fail("Unclear what the behavior should be");
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals(RONToken.START_STRUCT, parser.nextToken());
+            assertEquals(RONToken.END_STRUCT, parser.nextToken());
+        }
     }
 
     @Override
@@ -26,7 +29,7 @@ public class StructParserTest extends ContainerTest {
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
             assertEquals(RONToken.START_STRUCT, parser.nextToken());
-            assertEquals("foo", parser.nextFieldName());
+            assertEquals("foo", parser.nextIdentifier());
             assertEquals(1, parser.nextIntValue(-1));
             assertEquals(RONToken.END_STRUCT, parser.nextToken());
         }
@@ -38,9 +41,9 @@ public class StructParserTest extends ContainerTest {
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
             assertEquals(RONToken.START_STRUCT, parser.nextToken());
-            assertEquals("foo", parser.nextFieldName());
+            assertEquals("foo", parser.nextIdentifier());
             assertEquals(1, parser.nextIntValue(-1));
-            assertEquals("bar", parser.nextFieldName());
+            assertEquals("bar", parser.nextIdentifier());
             assertEquals(2, parser.nextIntValue(-1));
             assertEquals(RONToken.END_STRUCT, parser.nextToken());
         }
@@ -52,7 +55,7 @@ public class StructParserTest extends ContainerTest {
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
             assertEquals(RONToken.START_STRUCT, parser.nextToken());
-            assertEquals("foo", parser.nextFieldName());
+            assertEquals("foo", parser.nextIdentifier());
             assertEquals(1, parser.nextIntValue(-1));
             assertEquals(RONToken.END_STRUCT, parser.nextToken());
         }

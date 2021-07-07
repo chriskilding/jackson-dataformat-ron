@@ -9,8 +9,8 @@ public enum RONToken {
     START_STRUCT,
     END_STRUCT,
 
-    START_OBJECT,
-    END_OBJECT,
+    START_MAP,
+    END_MAP,
 
     ENUM,
     START_ENUM,
