@@ -11,7 +11,7 @@ import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
 
-public class ObjectParserTest extends ContainerTest {
+public class MapParserTest extends ContainerTest {
 
     @Override
     public void testEmpty() throws IOException {

@@ -7,25 +7,25 @@ root
    ;
 
 tuple
-   : '(' value (',' value)* (',')? ')'
-   | UNIT
+   : START_TUPLE value (',' value)* (',')? END_TUPLE
+   | START_TUPLE END_TUPLE
    ;
 
 // TODO support enums with child fields
 enumeration
-   : IDENTIFIER UNIT?
+   : IDENTIFIER (START_TUPLE END_TUPLE)?
    ;
 
 struct
-    : IDENTIFIER? '(' structEntry (',' structEntry)* ','? ')';
+    : IDENTIFIER? START_TUPLE structEntry (',' structEntry)* ','? END_TUPLE;
 
 structEntry
     : IDENTIFIER ':' value
     ;
 
 map
-   : '{' mapEntry (',' mapEntry)* ','? '}'
-   | '{' '}'
+   : START_MAP mapEntry (',' mapEntry)* ','? END_MAP
+   | START_MAP END_MAP
    ;
 
 mapEntry
@@ -33,8 +33,8 @@ mapEntry
    ;
 
 array
-   : '[' value (',' value)* ','? ']'
-   | '[' ']'
+   : START_ARRAY value (',' value)* ','? END_ARRAY
+   | START_ARRAY END_ARRAY
    ;
 
 value
@@ -45,7 +45,6 @@ value
    | tuple
    | enumeration
    | struct
-   | UNIT
    | TRUE
    | FALSE
    | INF
@@ -62,14 +61,22 @@ MINUS_INF: '-inf';
 
 NAN: 'NaN';
 
-UNIT: '(' ')';
-
 STRING: '"' (ESC | SAFECODEPOINT)* '"';
 
 NUMBER: '-'? INT ('.' [0-9] +)? EXP?;
 
 // struct keys, enum names, struct names
 IDENTIFIER: [a-zA-Z] [0-9a-zA-Z]*;
+
+START_MAP: '{';
+END_MAP: '}';
+
+START_ARRAY: '[';
+END_ARRAY: ']';
+
+// the idea of 'tuple' is reused across RON structs and enums ('tuple struct' etc)
+START_TUPLE: '(';
+END_TUPLE: ')';
 
 fragment ESC:
     '\\' (["\\/bfnrt] | UNICODE);

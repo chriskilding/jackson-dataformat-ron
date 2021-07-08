@@ -6,13 +6,11 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.dataformat.ron.PackageVersion;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONLexer;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
 import com.fasterxml.jackson.dataformat.ron.databind.deser.BeanDeserializer;
-import com.fasterxml.jackson.dataformat.ron.databind.deser.RONDeserializerFactory;
 import com.fasterxml.jackson.dataformat.ron.databind.ser.RONSerializerFactory;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -41,36 +39,15 @@ public class RONMapper extends ObjectMapper {
 
         // Default de/serializer factories are stateless, can just assign
         _serializerFactory = RONSerializerFactory.instance;
-
-        _deserializationContext = new DefaultDeserializationContext.Impl(RONDeserializerFactory.instance);
-    }
-
-    /**
-     * Copy constructor
-     */
-    protected RONMapper(RONMapper src) {
-        super(src);
-    }
-
-    @Override
-    public RONMapper copy() {
-        _checkInvalidCopy(RONMapper.class);
-        return new RONMapper(this);
     }
 
     @Override
     protected Object _readMapAndClose(JsonParser p0, JavaType valueType)
             throws IOException {
-        // Delegate to regular JSON parser for the JSON subset of RON
-        // A real parser would parse it as RON rather than delegate, to allow for RON's extra scalar values e.g. 'inf'
-        if (valueType.isArrayType() || valueType.isMapLikeType() || valueType.isCollectionLikeType()) {
-            return super._readMapAndClose(p0, valueType);
-        }
-
         try (com.fasterxml.jackson.dataformat.ron.parser.RONParser p = (com.fasterxml.jackson.dataformat.ron.parser.RONParser) p0) {
             final DeserializationConfig cfg = getDeserializationConfig();
 
-            Reader reader = (Reader) p.getInputSource();
+            Reader reader = p.getInputSource();
 
             if (reader == null) {
                 throw new JsonParseException(p, "Did not find a Reader in the JsonParser to use");
@@ -93,10 +70,4 @@ public class RONMapper extends ObjectMapper {
     public Version version() {
         return PackageVersion.VERSION;
     }
-
-    @Override
-    public RONFactory getFactory() {
-        return (RONFactory) _jsonFactory;
-    }
-
 }

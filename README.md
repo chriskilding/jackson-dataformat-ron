@@ -17,12 +17,12 @@ The Jackson RON backend supports the following RON types:
 
 | Type | Generator | Parser | ObjectMapper (read) | ObjectMapper (write) |
 --- | --- | --- | --- | ---
-|Scalars|Y|?|Y|Y|
-|Maps|Y|?|Y|Y|
-|Arrays|Y|?|Y|Y|
-|Structs|Y|?|Y|Y|
-|Enums|Y|?|Y<sup>1</sup>|Y<sup>1</sup>|
-|Tuples|Y|?|N<sup>2</sup>|N<sup>2</sup>|
+|Scalars|Y|Y|Y|Y|
+|Maps|Y|Y|Y|Y|
+|Arrays|Y|Y|Y|Y|
+|Structs|Y|Y|Y|Y|
+|Enums|Y|Y|Y<sup>1</sup>|Y<sup>1</sup>|
+|Tuples|Y|Y|N<sup>2</sup>|N<sup>2</sup>|
 
 <small><sup>1</sup> Java enums are simple, and cannot have user-defined child fields. Therefore the ObjectMapper only supports simple RON enums without child fields.</small>
 
@@ -286,7 +286,7 @@ public interface Animal {
 
 ## Limitations
 
-The following design limitations are in place due to the prototype nature of this code:
+The following intentional design limitations are in place due to the prototype nature of this code:
 
 - The `RONGenerator` only supports `Reader` and `Writer` based de/serializers. It does not support char array
   de/serializers.

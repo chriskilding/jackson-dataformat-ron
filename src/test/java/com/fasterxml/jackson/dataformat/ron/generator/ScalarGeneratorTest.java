@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ScalarGeneratorTest {
 
@@ -56,11 +55,6 @@ public class ScalarGeneratorTest {
             generator.writeNumber(BigDecimal.valueOf(1.234));
         }
         assertEquals("1.234", w.toString());
-    }
-
-    @Test
-    public void testBinary() throws IOException {
-        fail("Behavior not yet known");
     }
 
     @Test(expected = UnsupportedOperationException.class)

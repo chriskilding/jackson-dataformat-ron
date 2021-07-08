@@ -16,7 +16,11 @@ public class EnumParserTest extends ContainerTest {
     public void testEmpty() throws IOException {
         Reader ron = new StringReader("Foo()");
 
-        fail("Unclear what the behavior should be");
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals("Foo", parser.nextIdentifier());
+            assertEquals(RONToken.START_TUPLE, parser.nextRONToken());
+            assertEquals(RONToken.END_TUPLE, parser.nextRONToken());
+        }
     }
 
     @Override
@@ -25,9 +29,9 @@ public class EnumParserTest extends ContainerTest {
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
             assertEquals("Foo", parser.nextIdentifier());
-            assertEquals(RONToken.START_ENUM, parser.nextToken());
+            assertEquals(RONToken.START_TUPLE, parser.nextRONToken());
             assertEquals(1, parser.nextIntValue(-1));
-            assertEquals(RONToken.END_ENUM, parser.nextToken());
+            assertEquals(RONToken.END_TUPLE, parser.nextRONToken());
         }
     }
 
@@ -37,10 +41,10 @@ public class EnumParserTest extends ContainerTest {
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
             assertEquals("Foo", parser.nextIdentifier());
-            assertEquals(RONToken.START_ENUM, parser.nextToken());
+            assertEquals(RONToken.START_TUPLE, parser.nextRONToken());
             assertEquals(1, parser.nextIntValue(-1));
             assertTrue(parser.nextBooleanValue());
-            assertEquals(RONToken.END_ENUM, parser.nextToken());
+            assertEquals(RONToken.END_TUPLE, parser.nextRONToken());
         }
     }
 
@@ -59,9 +63,9 @@ public class EnumParserTest extends ContainerTest {
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
             assertEquals("Foo", parser.nextIdentifier());
-            assertEquals(RONToken.START_ENUM, parser.nextToken());
+            assertEquals(RONToken.START_TUPLE, parser.nextRONToken());
             assertEquals(1, parser.nextIntValue(-1));
-            assertEquals(RONToken.END_ENUM, parser.nextToken());
+            assertEquals(RONToken.END_TUPLE, parser.nextRONToken());
         }
     }
 }

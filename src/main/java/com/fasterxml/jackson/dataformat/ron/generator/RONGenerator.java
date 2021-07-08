@@ -39,34 +39,11 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     }
 
     /**
-     * RON supports true primitives (not wrapped in strings).
-     */
-    @Override
-    public boolean canWriteFormattedNumbers() {
-        return true;
-    }
-
-    /**
      * RON structs can have optional type names.
      */
     @Override
     public boolean canWriteTypeId() {
         return true;
-    }
-
-    @Override
-    public boolean canWriteObjectId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean canWriteBinaryNatively() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean canOmitFields() {
-        throw new UnsupportedOperationException();
     }
 
     /**

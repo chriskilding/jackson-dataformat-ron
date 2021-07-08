@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.dataformat.ron.databind.deser;
 
+import com.fasterxml.jackson.dataformat.ron.util.Strings;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONLexer;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
 
@@ -10,7 +11,7 @@ public class ValueVisitor {
 
     public String visitString(RONParser.ValueContext ctx) {
         final String str = ctx.STRING().getText();
-        return removeEnclosingQuotes(str);
+        return Strings.removeEnclosingQuotes(str);
     }
 
     public double visitDouble(RONParser.ValueContext ctx) {
@@ -67,7 +68,4 @@ public class ValueVisitor {
         }
     }
 
-    private static String removeEnclosingQuotes(String myString) {
-        return myString.substring(1, myString.length()-1);
-    }
 }

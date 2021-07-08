@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.dataformat.ron.parser;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import org.junit.Ignore;
@@ -33,12 +32,20 @@ public class ScalarParserTest {
     }
 
     @Test
+    public void testLong() throws IOException {
+        Reader ron = new StringReader("123");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals(123, parser.nextLongValue(-1));
+        }
+    }
+
+    @Test
     public void testFloat() throws IOException {
         Reader ron = new StringReader("1.23");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            // there is no parser.nextFloatValue()
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
+            assertEquals(1.23f, parser.nextFloatValue(-1), 0.0001);
         }
     }
 
@@ -85,12 +92,12 @@ public class ScalarParserTest {
     /**
      * RON does not have null support. Instead the token 'null' will be parsed like any other arbitrary string token.
      */
-    @Test(expected = JsonParseException.class)
+    @Test
     public void testNull() throws IOException {
         final StringReader ron = new StringReader("null");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            JsonToken foo = parser.nextToken();
+            assertEquals("null", parser.nextIdentifier());
         }
     }
 }

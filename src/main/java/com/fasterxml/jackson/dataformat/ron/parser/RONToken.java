@@ -6,15 +6,10 @@ package com.fasterxml.jackson.dataformat.ron.parser;
 public enum RONToken {
     NOT_AVAILABLE,
 
-    START_STRUCT,
-    END_STRUCT,
-
     START_MAP,
     END_MAP,
 
     ENUM,
-    START_ENUM,
-    END_ENUM,
 
     START_TUPLE,
     END_TUPLE,
@@ -29,7 +24,4 @@ public enum RONToken {
     FLOAT,
     TRUE,
     FALSE,
-
-    COMMA,
-
 }
