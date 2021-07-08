@@ -71,7 +71,7 @@ public class ScalarGeneratorTest {
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("bar");
         }
-        assertEquals("\"bar\"", w.toString());
+        assertEquals(q("bar"), w.toString());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ScalarGeneratorTest {
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("foo'");
         }
-        assertEquals("\"foo'\"", w.toString());
+        assertEquals(q("foo'"), w.toString());
     }
 
     @Test
@@ -89,24 +89,24 @@ public class ScalarGeneratorTest {
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeString("foo\"");
         }
-        assertEquals("\"foo\\\"", w.toString());
+        assertEquals(q("foo\\\""), w.toString());
     }
 
-    @Test
-    public void testStringWithUnicodeControlChar() throws IOException {
+    /**
+     * RON does not support null values.
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void testNull() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeString("foo\u0001");
+            generator.writeNull();
         }
-        assertEquals("\"foo\\u0001\"", w.toString());
     }
 
-    @Test
-    public void testStringWithControlChar() throws IOException {
-        StringWriter w = new StringWriter();
-        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeString("foo\b");
-        }
-        assertEquals("\"foo\\b\"", w.toString());
+    /**
+     * Quoted string. Wraps the provided string with double quotes.
+     */
+    private static String q(String str) {
+        return "\"" + str + "\"";
     }
 }

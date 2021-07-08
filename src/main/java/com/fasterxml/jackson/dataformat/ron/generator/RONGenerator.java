@@ -201,11 +201,17 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         writeQuotedString(s);
     }
 
-    private void writeQuotedString(String s) throws IOException {
+    private void writeQuotedString(String str) throws IOException {
         writeRaw(DOUBLE_QUOTE);
-        // FIXME proper escaping
-        writeRaw(s);
+        writeRaw(ronEscape(str));
         writeRaw(DOUBLE_QUOTE);
+    }
+
+    /**
+     * Escape the provided string to make it safe for RON.
+     */
+    private static String ronEscape(String str) {
+        return str.replace("\"", "\\\"");
     }
 
     @Override

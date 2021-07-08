@@ -99,3 +99,9 @@ fragment EXP
 
 // \- since - means "range" inside [...]
 WS: [ \t\n\r] + -> skip;
+
+COMMENT
+   : '/*' .*? '*/' -> skip;
+
+LINE_COMMENT
+   : '//' ~[\r\n]* -> skip;

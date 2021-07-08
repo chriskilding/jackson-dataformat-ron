@@ -243,13 +243,7 @@ public class RONParser extends ParserBase {
     public final JsonToken nextToken() throws IOException {
         Token token = nextLexerToken();
 
-        JsonToken t = toJsonToken(token);
-
-        if (t == null) {
-            _reportInvalidToken(token.getText());
-        }
-
-        return t;
+        return toJsonToken(token);
     }
 
     @Override
