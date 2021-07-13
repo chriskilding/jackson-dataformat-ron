@@ -20,8 +20,10 @@ public enum RONToken {
     FIELD_NAME,
 
     STRING,
-    INTEGER,
-    FLOAT,
+    NUMBER,
     TRUE,
     FALSE,
+    INF,
+    MINUS_INF,
+    NAN
 }

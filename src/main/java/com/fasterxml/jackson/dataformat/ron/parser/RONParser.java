@@ -145,33 +145,49 @@ public class RONParser extends ParserBase {
                 return RONToken.END_TUPLE;
             case RONLexer.STRING:
                 return RONToken.STRING;
+            case RONLexer.INF:
+                return RONToken.INF;
+            case RONLexer.MINUS_INF:
+                return RONToken.MINUS_INF;
+            case RONLexer.NAN:
+                return RONToken.NAN;
+            case RONLexer.NUMBER:
+                return RONToken.NUMBER;
             default:
-                // FIXME add the rest
                 return null;
         }
     }
 
-    private static JsonToken toJsonToken(Token token) {
-        switch (token.getType()) {
-            case RONLexer.TRUE:
+    private static JsonToken toJsonToken(RONToken token) {
+
+        if (token == null) {
+            return null;
+        }
+
+        switch (token) {
+            case TRUE:
                 return JsonToken.VALUE_TRUE;
-            case RONLexer.FALSE:
+            case FALSE:
                 return JsonToken.VALUE_FALSE;
-            case RONLexer.INF:
-            case RONLexer.MINUS_INF:
-            case RONLexer.NAN:
-                return JsonToken.VALUE_NUMBER_FLOAT;
-            case RONLexer.STRING:
+            case STRING:
                 return JsonToken.VALUE_STRING;
-            case RONLexer.START_ARRAY:
+            case START_ARRAY:
                 return JsonToken.START_ARRAY;
-            case RONLexer.END_ARRAY:
+            case END_ARRAY:
                 return JsonToken.END_ARRAY;
-            case RONLexer.START_MAP:
+            case START_MAP:
                 return JsonToken.START_OBJECT;
-            case RONLexer.END_MAP:
+            case END_MAP:
                 return JsonToken.END_OBJECT;
-                // FIXME add the rest
+            case INF:
+            case MINUS_INF:
+            case NAN:
+                return JsonToken.VALUE_NUMBER_FLOAT;
+            case NUMBER:
+                // TODO this is not quite right... floats would be captured under NUMBER at the moment
+                return JsonToken.VALUE_NUMBER_INT;
+            case FIELD_NAME:
+                return JsonToken.FIELD_NAME;
             default:
                 return null;
         }
@@ -182,9 +198,7 @@ public class RONParser extends ParserBase {
      */
     @Override
     public final JsonToken nextToken() throws IOException {
-        Token token = nextLexerToken();
-
-        return toJsonToken(token);
+        return toJsonToken(nextRONToken());
     }
 
     @Override
