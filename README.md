@@ -300,13 +300,17 @@ Dependencies:
 - Java 7+ (the JDK7 constraint is from upstream Jackson)
 - Maven 3
 
-Build:
+Generate RON parser from ANTLR definition (one-time step, only needed if `mvn clean` has been run):
 
 ```shell
-mvn package
+mvn compile
 ```
 
-**Note:** the project uses ANTLR to generate its internal RON parser. You must run `mvn compile` before attempting to build the project with your IDE, or you will get missing class errors.
+Build the code:
+
+```shell
+mvn verify
+```
 
 The key classes which implement the public Jackson APIs are:
 
