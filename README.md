@@ -1,5 +1,7 @@
 # jackson-dataformat-ron
 
+[![codecov](https://codecov.io/gh/chriskilding/jackson-dataformat-ron/branch/main/graph/badge.svg)](https://codecov.io/gh/chriskilding/jackson-dataformat-ron)
+
 Experimental [Rust Object Notation](https://github.com/ron-rs/ron) (RON) support for Jackson.
 
 This project is a prototype. **It is not suitable for production use**.
