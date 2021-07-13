@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.dataformat.ron.generator;
 
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
+import com.fasterxml.jackson.dataformat.ron.ScalarTest;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -10,9 +11,9 @@ import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 
-public class ScalarGeneratorTest {
+public class ScalarGeneratorTest extends ScalarTest {
 
-    @Test
+    @Override
     public void testInt() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
@@ -21,8 +22,17 @@ public class ScalarGeneratorTest {
         assertEquals("123", w.toString());
     }
 
-    @Test
-    public void testBoolean() throws IOException {
+    @Override
+    public void testLong() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(123L);
+        }
+        assertEquals("123", w.toString());
+    }
+
+    @Override
+    public void testTrue() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeBoolean(true);
@@ -30,16 +40,61 @@ public class ScalarGeneratorTest {
         assertEquals("true", w.toString());
     }
 
-    @Test
+    @Override
+    public void testFalse() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeBoolean(false);
+        }
+        assertEquals("false", w.toString());
+    }
+
+    @Override
     public void testFloat() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeNumber(1.23);
+            generator.writeNumber(1.23f);
         }
         assertEquals("1.23", w.toString());
     }
 
-    @Test
+    @Override
+    public void testInf() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(Float.POSITIVE_INFINITY);
+        }
+        assertEquals("inf", w.toString());
+    }
+
+    @Override
+    public void testMinusInf() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(Float.NEGATIVE_INFINITY);
+        }
+        assertEquals("-inf", w.toString());
+    }
+
+    @Override
+    public void testNan() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(Float.NaN);
+        }
+        assertEquals("NaN", w.toString());
+    }
+
+    @Override
+    public void testDouble() throws IOException {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeNumber(1.23d);
+        }
+        assertEquals("1.23", w.toString());
+    }
+
+    @Override
     public void testBigInteger() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
@@ -48,7 +103,7 @@ public class ScalarGeneratorTest {
         assertEquals("1", w.toString());
     }
 
-    @Test
+    @Override
     public void testBigDecimal() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
@@ -57,15 +112,7 @@ public class ScalarGeneratorTest {
         assertEquals("1.234", w.toString());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testNullRejected() throws IOException {
-        StringWriter w = new StringWriter();
-        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeNull();
-        }
-    }
-
-    @Test
+    @Override
     public void testString() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {

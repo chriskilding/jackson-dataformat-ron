@@ -7,14 +7,17 @@ import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class ValueVisitor {
+/**
+ * Helper for the BeanDeserializer.
+ */
+class ValueVisitor {
 
-    public String visitString(RONParser.ValueContext ctx) {
+    String visitString(RONParser.ValueContext ctx) {
         final String str = ctx.STRING().getText();
         return Strings.removeEnclosingQuotes(str);
     }
 
-    public double visitDouble(RONParser.ValueContext ctx) {
+    double visitDouble(RONParser.ValueContext ctx) {
         switch (ctx.start.getType()) {
             case RONLexer.INF:
                 return Double.POSITIVE_INFINITY;
@@ -28,7 +31,7 @@ public class ValueVisitor {
         }
     }
 
-    public float visitFloat(RONParser.ValueContext ctx) {
+    float visitFloat(RONParser.ValueContext ctx) {
         switch (ctx.start.getType()) {
             case RONLexer.INF:
                 return Float.POSITIVE_INFINITY;
@@ -42,22 +45,27 @@ public class ValueVisitor {
         }
     }
 
-    public int visitInt(RONParser.ValueContext ctx) {
+    int visitInt(RONParser.ValueContext ctx) {
         final String num = ctx.NUMBER().getText();
         return Integer.parseInt(num);
     }
 
-    public BigInteger visitBigInteger(RONParser.ValueContext ctx) {
+    long visitLong(RONParser.ValueContext ctx) {
+        final String num = ctx.NUMBER().getText();
+        return Long.parseLong(num);
+    }
+
+    BigInteger visitBigInteger(RONParser.ValueContext ctx) {
         final String num = ctx.NUMBER().getText();
         return new BigInteger(num);
     }
 
-    public BigDecimal visitBigDecimal(RONParser.ValueContext ctx) {
+    BigDecimal visitBigDecimal(RONParser.ValueContext ctx) {
         final String num = ctx.NUMBER().getText();
         return new BigDecimal(num);
     }
 
-    public boolean visitBoolean(RONParser.ValueContext ctx) {
+    boolean visitBoolean(RONParser.ValueContext ctx) {
         switch (ctx.start.getType()) {
             case RONLexer.TRUE:
                 return true;

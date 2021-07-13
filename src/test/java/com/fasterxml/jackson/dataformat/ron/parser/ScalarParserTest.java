@@ -1,46 +1,48 @@
 package com.fasterxml.jackson.dataformat.ron.parser;
 
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import org.junit.Ignore;
+import com.fasterxml.jackson.dataformat.ron.ScalarTest;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.junit.Assert.*;
 
-public class ScalarParserTest {
+public class ScalarParserTest extends ScalarTest {
 
-    @Test
+    @Override
     public void testString() throws IOException {
         Reader ron = new StringReader("\"hello\"");
 
-        try (RONParser parser = new RONFactory().createParser(ron)) {
+        try (JsonParser parser = new RONFactory().createParser(ron)) {
             assertEquals("hello", parser.nextTextValue());
         }
     }
 
-    @Test
+    @Override
     public void testInt() throws IOException {
         Reader ron = new StringReader("123");
 
-        try (RONParser parser = new RONFactory().createParser(ron)) {
+        try (JsonParser parser = new RONFactory().createParser(ron)) {
             assertEquals(123, parser.nextIntValue(-1));
         }
     }
 
-    @Test
+    @Override
     public void testLong() throws IOException {
         Reader ron = new StringReader("123");
 
-        try (RONParser parser = new RONFactory().createParser(ron)) {
+        try (JsonParser parser = new RONFactory().createParser(ron)) {
             assertEquals(123, parser.nextLongValue(-1));
         }
     }
 
-    @Test
+    @Override
     public void testFloat() throws IOException {
         Reader ron = new StringReader("1.23");
 
@@ -49,43 +51,75 @@ public class ScalarParserTest {
         }
     }
 
-    @Test
-    public void testBoolean() throws IOException {
-        try (RONParser parser = new RONFactory().createParser(new StringReader("true"))) {
+    @Override
+    public void testBigInteger() throws IOException {
+        Reader ron = new StringReader("123");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals(BigInteger.valueOf(123), parser.nextBigIntegerValue());
+        }
+    }
+
+    @Override
+    public void testBigDecimal() throws IOException {
+        Reader ron = new StringReader("1.23");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals(BigDecimal.valueOf(1.23), parser.nextBigDecimalValue());
+        }
+    }
+
+    @Override
+    public void testDouble() throws IOException {
+        Reader ron = new StringReader("1.23");
+
+        try (RONParser parser = new RONFactory().createParser(ron)) {
+            assertEquals(1.23d, parser.nextDoubleValue(-1), 0.0001);
+        }
+    }
+
+    @Override
+    public void testTrue() throws IOException {
+        final StringReader ron = new StringReader("true");
+
+        try (JsonParser parser = new RONFactory().createParser(ron)) {
             assertTrue(parser.nextBooleanValue());
         }
+    }
 
-        try (RONParser parser = new RONFactory().createParser(new StringReader("false"))) {
+    @Override
+    public void testFalse() throws IOException {
+        final StringReader ron = new StringReader("false");
+
+        try (JsonParser parser = new RONFactory().createParser(ron)) {
             assertFalse(parser.nextBooleanValue());
         }
     }
 
-    @Test
+    @Override
     public void testInf() throws IOException {
         Reader ron = new StringReader("inf");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            // there is no parser.nextFloatValue()
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
+            assertEquals(Float.POSITIVE_INFINITY, parser.nextFloatValue(-1), 0.0001);
         }
     }
 
-    @Ignore("Not supported yet")
+    @Override
     public void testMinusInf() throws IOException {
         Reader ron = new StringReader("-inf");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            // there is no parser.nextFloatValue()
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
+            assertEquals(Float.NEGATIVE_INFINITY, parser.nextFloatValue(-1), 0.0001);
         }
     }
 
-    @Ignore("Not supported yet")
-    public void testNaN() throws IOException {
+    @Override
+    public void testNan() throws IOException {
         Reader ron = new StringReader("NaN");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
-            fail("Unclear what behavior should be");
+            assertEquals(Float.NaN, parser.nextFloatValue(-1), 0.0001);
         }
     }
 

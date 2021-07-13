@@ -15,6 +15,8 @@ import java.math.BigInteger;
 public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RONStructGenerator, RONTupleGenerator {
 
     private static final char DOUBLE_QUOTE = '\"';
+    private static final String INF = "inf";
+    private static final String MINUS_INF = "-inf";
 
     protected final Writer _writer;
 
@@ -279,13 +281,27 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
     @Override
     public void writeNumber(double v) throws IOException {
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(v));
+
+        if (v == Double.POSITIVE_INFINITY) {
+            writeRaw(INF);
+        } else if (v == Double.NEGATIVE_INFINITY) {
+            writeRaw(MINUS_INF);
+        } else {
+            writeRaw(String.valueOf(v));
+        }
     }
 
     @Override
     public void writeNumber(float v) throws IOException {
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(v));
+
+        if (v == Float.POSITIVE_INFINITY) {
+            writeRaw(INF);
+        } else if (v == Float.NEGATIVE_INFINITY) {
+            writeRaw(MINUS_INF);
+        } else {
+            writeRaw(String.valueOf(v));
+        }
     }
 
     @Override

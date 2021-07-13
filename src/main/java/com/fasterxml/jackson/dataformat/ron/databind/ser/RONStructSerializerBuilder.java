@@ -10,9 +10,8 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerBuilder;
 public class RONStructSerializerBuilder extends BeanSerializerBuilder {
     private final static BeanPropertyWriter[] NO_PROPERTIES = new BeanPropertyWriter[0];
 
-    public RONStructSerializerBuilder(BeanDescription beanDesc, SerializationConfig config) {
+    public RONStructSerializerBuilder(BeanDescription beanDesc) {
         super(beanDesc);
-        this.setConfig(config);
     }
 
     @Override

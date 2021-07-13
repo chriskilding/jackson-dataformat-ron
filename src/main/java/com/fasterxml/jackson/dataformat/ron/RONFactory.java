@@ -17,7 +17,7 @@ import java.io.Writer;
  */
 public class RONFactory extends JsonFactory
 {
-	private static final long serialVersionUID = 1; // 2.6
+	private static final long serialVersionUID = 1;
 
 	@Override
 	protected RONGenerator _createGenerator(Writer out, IOContext ctxt) {
@@ -26,7 +26,7 @@ public class RONFactory extends JsonFactory
 
 	@Override
 	protected RONParser _createParser(Reader r, IOContext ctxt) {
-		return new RONParser(ctxt, _parserFeatures, r, _objectCodec, _rootCharSymbols.makeChild(_factoryFeatures));
+		return new RONParser(ctxt, _parserFeatures, r, _objectCodec);
 	}
 
 	/**

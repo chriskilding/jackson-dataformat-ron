@@ -2,67 +2,35 @@ package com.fasterxml.jackson.dataformat.ron.parser;
 
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.StreamReadCapability;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.dataformat.ron.util.Strings;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONLexer;
+import com.fasterxml.jackson.dataformat.ron.util.Strings;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class RONParser extends ParserBase {
 
-    /**
-     * Reader that can be used for reading more content, if one
-     * buffer from input source, but in some cases pre-loaded buffer
-     * is handed to the parser.
-     */
     protected Reader _reader;
 
     private RONLexer lexer;
 
-    /**
-     * Current buffer from which data is read; generally data is read into
-     * buffer from input source.
-     */
-    public char[] _inputBuffer;
-
-    /**
-     * Flag that indicates whether the input buffer is recycable (and
-     * needs to be returned to recycler once we are done) or not.
-     * <p>
-     * If it is not, it also means that parser can NOT modify underlying
-     * buffer.
-     */
-    protected boolean _bufferRecyclable;
-
     protected ObjectCodec _objectCodec;
-
-    final protected CharsToNameCanonicalizer _symbols;
-
-    final protected int _hashSeed;
 
     /**
      * Method called when input comes as a {@link java.io.Reader}, and buffer allocation
      * can be done using default mechanism.
      */
-    public RONParser(IOContext ctxt, int features, Reader r,
-                     ObjectCodec codec, CharsToNameCanonicalizer st) {
+    public RONParser(IOContext ctxt, int features, Reader r, ObjectCodec codec) {
         super(ctxt, features);
         _reader = r;
-        _inputBuffer = ctxt.allocTokenBuffer();
-        _inputPtr = 0;
-        _inputEnd = 0;
         _objectCodec = codec;
-        _symbols = st;
-        _hashSeed = st.hashSeed();
-        _bufferRecyclable = true;
     }
 
     @Override
@@ -73,11 +41,6 @@ public class RONParser extends ParserBase {
     @Override
     public void setCodec(ObjectCodec c) {
         _objectCodec = c;
-    }
-
-    @Override
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
     }
 
     @Override
@@ -99,27 +62,6 @@ public class RONParser extends ParserBase {
                 _reader.close();
             }
             _reader = null;
-        }
-    }
-
-    /**
-     * Method called to release internal buffers owned by the base
-     * reader. This may be called along with {@link #_closeInput} (for
-     * example, when explicitly closing this reader instance), or
-     * separately (if need be).
-     */
-    @Override
-    protected void _releaseBuffers() throws IOException {
-        super._releaseBuffers();
-        // merge new symbols, if any
-        _symbols.release();
-        // and release buffers, if they are recyclable ones
-        if (_bufferRecyclable) {
-            char[] buf = _inputBuffer;
-            if (buf != null) {
-                _inputBuffer = null;
-                _ioContext.releaseTokenBuffer(buf);
-            }
         }
     }
 
@@ -160,7 +102,6 @@ public class RONParser extends ParserBase {
      * Low-level nextToken method.
      */
     private Token nextLexerToken() throws IOException {
-        // ensure lexer is set up
         Reader reader = this._reader;
 
         // TODO close lexer?
@@ -248,7 +189,7 @@ public class RONParser extends ParserBase {
 
     @Override
     public String nextFieldName() throws IOException {
-        // TODO distinguish field names from just string values
+        // TODO distinguish field names from string values
         return this.nextTextValue();
     }
 
@@ -301,14 +242,6 @@ public class RONParser extends ParserBase {
         }
     }
 
-    protected void _reportInvalidToken(String matchedPart) throws IOException {
-        _reportInvalidToken(matchedPart, _validJsonTokenList());
-    }
-
-    protected void _reportInvalidToken(String matchedPart, String msg) throws IOException {
-        _reportError("Unrecognized token '%s': was expecting %s", matchedPart, msg);
-    }
-
     /**
      * Get the next RON identifier (struct name, struct key, enum name).
      */
@@ -323,6 +256,9 @@ public class RONParser extends ParserBase {
         }
     }
 
+    /**
+     * This doesn't exist on JsonParser yet but we include it for completeness.
+     */
     public float nextFloatValue(float defaultValue) throws IOException {
         Token token = this.nextLexerToken();
 
@@ -338,5 +274,53 @@ public class RONParser extends ParserBase {
         }
 
         return defaultValue;
+    }
+
+    /**
+     * This doesn't exist on JsonParser yet but we include it for completeness.
+     */
+    public double nextDoubleValue(double defaultValue) throws IOException {
+        Token token = this.nextLexerToken();
+
+        switch (token.getType()) {
+            case RONLexer.INF:
+                return Double.POSITIVE_INFINITY;
+            case RONLexer.MINUS_INF:
+                return Double.NEGATIVE_INFINITY;
+            case RONLexer.NAN:
+                return Double.NaN;
+            case RONLexer.NUMBER:
+                return Double.parseDouble(token.getText());
+        }
+
+        return defaultValue;
+    }
+
+    /**
+     * This doesn't exist on JsonParser yet but we include it for completeness.
+     */
+    public BigInteger nextBigIntegerValue() throws IOException {
+        final Token token = this.nextLexerToken();
+
+        if (token.getType() == RONLexer.NUMBER) {
+            String num = token.getText();
+            return new BigInteger(num);
+        }
+
+        return null;
+    }
+
+    /**
+     * This doesn't exist on JsonParser yet but we include it for completeness.
+     */
+    public BigDecimal nextBigDecimalValue() throws IOException {
+        final Token token = this.nextLexerToken();
+
+        if (token.getType() == RONLexer.NUMBER) {
+            String num = token.getText();
+            return new BigDecimal(num);
+        }
+
+        return null;
     }
 }

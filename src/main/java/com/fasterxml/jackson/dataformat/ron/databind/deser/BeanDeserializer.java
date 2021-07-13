@@ -245,6 +245,10 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
             return valueVisitor.visitInt(ctx);
         }
 
+        if (javaType.isTypeOrSubTypeOf(Long.class) || javaType.isTypeOrSubTypeOf(long.class)) {
+            return valueVisitor.visitLong(ctx);
+        }
+
         if (javaType.isTypeOrSubTypeOf(BigInteger.class)) {
             return valueVisitor.visitBigInteger(ctx);
         }

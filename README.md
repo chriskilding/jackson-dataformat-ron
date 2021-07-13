@@ -41,11 +41,9 @@ The high-level `RONMapper` only supports the subset of RON types that have equiv
 to preserve the property of **round-trip compatibility**, i.e. `serialize(deserialize(x)) = x` using default
 ObjectMapper parameters.
 
-Long explanation: It would be possible, with an extension like a `@RONFormat(shape = Shape.ENUM)` annotation, to
-manually instruct the ObjectMapper to de/serialize a RON enum `Foo(1, true)` into a POJO with a
-matching `Foo(int, boolean)` constructor. The trouble is that if this manual override is missing, the default
-serialization of the POJO is ambiguous; the ObjectMapper cannot know that the POJO should turn back into a RON enum.
-It might serialize it as a struct instead, creating an unexpected surprise for the user. Therefore it is safer to not support RON types beyond those with Java equivalents.
+Long explanation...
+
+It would be possible to *deserialize* a RON enum `Foo(1, true)` into a POJO with a matching `Foo(int, boolean)` constructor. But the default *serialization* of a POJO is a struct. This would cause an unexpected surprise for the user when round-tripping data; put in an enum, get out a struct. Therefore it is safer to only support RON types with direct Java equivalents.
 
 ## Setup
 
@@ -99,12 +97,12 @@ public class GeneratorExample {
 
 ### RONParser
 
-To read RON constructs, call the RON-specific reader methods on the RONParser:
+To read RON constructs, call the RON-specific `nextXXX` reader methods on the RONParser:
 
 - `nextIdentifier()` (struct names, struct keys, enum names)
 - `nextRONToken()` (any token)
 
-Note: `nextToken()` is provided for compatibility with Jackson's `JsonParser` supertype, but it is fragile. It only works if the input is constrained to the JSON subset of RON. You should generally use `nextRONToken()` instead.
+Note: `nextToken()` is provided for compatibility, but it is fragile. It only works if the input is constrained to the JSON subset of RON. You should generally use `nextRONToken()` instead.
 
 ```java
 public class ParserExample {
@@ -150,7 +148,7 @@ public class ParserExample {
 
 ### RONMapper
 
-In Rust, serialization is driven strongly by convention: objects are mapped to their closest RON type. We follow this
+In Rust, serialization is driven strongly by convention: objects are mapped to their closest RON types. We follow this
 convention as closely as possible.
 
 | Java Type | RON Type |
@@ -231,7 +229,7 @@ public class Dog implements Animal {
 }
 ```
 
-With JSON you have to use one of **several** **informal** ways to encode the type information in a JSON object (options include a synthetic property e.g. `@type`, or a fake union type e.g. wrapper object, wrapper array):
+With JSON you have to use one of **several** **informal** ways to encode the type information in a JSON object (options include a synthetic property e.g. `@type`, or a fake union type e.g. wrapper object):
 
 ```json
 {
@@ -292,3 +290,29 @@ The following intentional design limitations are in place due to the prototype n
   de/serializers.
 - There is no pretty printer for RON. The `RONGenerator` produces the compact form, without whitespace.
 - The `RONMapper` does not support custom de/serialization `Features`.
+
+## Development
+
+If you want to work on this library, start here.
+
+Dependencies:
+
+- Java 7+ (the JDK7 constraint is from upstream Jackson)
+- Maven 3
+
+Build:
+
+```shell
+mvn package
+```
+
+**Note:** the project uses ANTLR to generate its internal RON parser. You must run `mvn compile` before attempting to build the project with your IDE, or you will get missing class errors.
+
+The key classes which implement the public Jackson APIs are:
+
+- `RONGenerator`
+- `RONParser`
+- `RONMapper`
+- `RONFactory` (which is used to create instances of the key classes)
+  
+All other classes, and the ANTLR grammar, are implementation details.

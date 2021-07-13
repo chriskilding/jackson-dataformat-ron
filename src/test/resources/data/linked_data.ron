@@ -1,3 +1,0 @@
-// imagine RON-LD, a linked data format without JSON-LD's shortcomings...
-use schemaorg::Person;
-Person(givenName: "Joe", familyName: "Bloggs")

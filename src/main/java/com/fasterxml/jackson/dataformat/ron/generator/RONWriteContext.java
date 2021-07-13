@@ -146,11 +146,6 @@ public class RONWriteContext extends JsonStreamContext {
         return _type == RONContextType.OBJECT;
     }
 
-    // FIXME cannot @Override inRoot(); must ask jackson-core to remove final modifier
-    public boolean inTheRoot() {
-        return _type == RONContextType.ROOT;
-    }
-
     public boolean inEnum() {
         return _type == RONContextType.ENUM;
     }
