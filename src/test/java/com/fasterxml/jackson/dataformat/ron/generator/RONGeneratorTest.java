@@ -20,9 +20,9 @@ public class RONGeneratorTest {
      */
     @Test
     public void shouldNotUseSchemas() throws IOException {
-        RONGenerator generator = newGenerator();
-
-        assertFalse(generator.canUseSchema(null));
+        try (RONGenerator generator = newGenerator()) {
+            assertFalse(generator.canUseSchema(null));
+        }
     }
 
     /**
@@ -30,8 +30,48 @@ public class RONGeneratorTest {
      */
     @Test
     public void shouldWriteTypeNames() throws IOException {
-        RONGenerator generator = newGenerator();
+        try (RONGenerator generator = newGenerator()) {
+            assertTrue(generator.canWriteTypeId());
+        }
+    }
 
-        assertTrue(generator.canWriteTypeId());
+    @Test(expected = IOException.class)
+    public void testEndArrayMismatch() throws IOException {
+        try (RONGenerator generator = newGenerator()) {
+            generator.writeStartTuple();
+            generator.writeEndArray();
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testEndStructMismatch() throws IOException {
+        try (RONGenerator generator = newGenerator()) {
+            generator.writeStartArray();
+            generator.writeEndStruct();
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testEndObjectMismatch() throws IOException {
+        try (RONGenerator generator = newGenerator()) {
+            generator.writeStartArray();
+            generator.writeEndObject();
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testEndTupleMismatch() throws IOException {
+        try (RONGenerator generator = newGenerator()) {
+            generator.writeStartArray();
+            generator.writeEndTuple();
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testEndEnumMismatch() throws IOException {
+        try (RONGenerator generator = newGenerator()) {
+            generator.writeStartArray();
+            generator.writeEndEnum();
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.dataformat.ron.databind.ser;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerBuilder;
 
@@ -31,8 +30,7 @@ public class RONStructSerializerBuilder extends BeanSerializerBuilder {
             }
         }
 
-        final boolean namedStruct = true; // TODO parameterize this
-        return new RONStructSerializer(properties, namedStruct);
+        return new RONStructSerializer(properties);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.dataformat.ron.databind.ser;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -18,9 +17,8 @@ abstract class RONSerializer<T> extends JsonSerializer<T> {
      */
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (!(gen instanceof RONGenerator)) {
-            throw new JsonGenerationException("Generator was not an instance of RONGenerator - cannot continue serialization", gen);
-        }
+        // This is a framework-private class that is only used from RONSerializerFactory
+        // so `gen` should always be a RONGenerator
         RONGenerator generator = (RONGenerator) gen;
         this.serialize(value, generator, serializers);
     }

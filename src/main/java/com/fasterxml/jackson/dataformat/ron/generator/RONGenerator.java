@@ -35,11 +35,6 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
         _writeContext = RONWriteContext.createRootContext();
     }
 
-    @Override
-    public Object getOutputTarget() {
-        return _writer;
-    }
-
     /**
      * RON structs can have optional type names.
      */
@@ -165,10 +160,6 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     public void writeEnum(String name) throws IOException {
-        if (name == null) {
-            writeNull();
-            return;
-        }
         _verifyValueWrite("write Enum value");
         // FIXME proper escaping
         _writer.write(name);
@@ -195,10 +186,6 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     public void writeString(String s) throws IOException {
-        if (s == null) {
-            writeNull();
-            return;
-        }
         _verifyValueWrite("write String value");
         writeQuotedString(s);
     }
@@ -270,11 +257,7 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     public void writeNumber(BigInteger bigInteger) throws IOException {
-        if (bigInteger == null) {
-            writeNull();
-            return;
-        }
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(bigInteger));
     }
 
@@ -306,17 +289,13 @@ public class RONGenerator extends GeneratorBase implements RONEnumGenerator, RON
 
     @Override
     public void writeNumber(BigDecimal bigDecimal) throws IOException {
-        if (bigDecimal == null) {
-            writeNull();
-            return;
-        }
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(bigDecimal));
     }
 
     @Override
     public void writeNumber(String s) {
-
+        _reportUnsupportedOperation();
     }
 
     @Override

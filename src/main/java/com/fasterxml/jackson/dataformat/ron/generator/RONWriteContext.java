@@ -99,8 +99,6 @@ public class RONWriteContext extends JsonStreamContext {
     }
 
     public RONWriteContext clearAndGetParent() {
-//        _currentValue = null;
-        // could also clear the current name, but seems cheap enough to leave?
         return _parent;
     }
 
@@ -136,12 +134,12 @@ public class RONWriteContext extends JsonStreamContext {
         return true;
     }
 
-    // FIXME cannot @Override inArray(); must ask jackson-core to remove final modifier
+    // TODO cannot @Override inArray(); must ask jackson-core to remove final modifier
     public boolean inAnArray() {
         return _type == RONContextType.ARRAY;
     }
 
-    // FIXME cannot @Override inObject(); must ask jackson-core to remove final modifier
+    // TODO cannot @Override inObject(); must ask jackson-core to remove final modifier
     public boolean inAnObject() {
         return _type == RONContextType.OBJECT;
     }

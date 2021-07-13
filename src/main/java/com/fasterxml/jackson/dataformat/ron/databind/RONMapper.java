@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.dataformat.ron.databind;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -48,10 +47,6 @@ public class RONMapper extends ObjectMapper {
             final DeserializationConfig cfg = getDeserializationConfig();
 
             Reader reader = p.getInputSource();
-
-            if (reader == null) {
-                throw new JsonParseException(p, "Did not find a Reader in the JsonParser to use");
-            }
 
             CharStream charStream = CharStreams.fromReader(reader);
 

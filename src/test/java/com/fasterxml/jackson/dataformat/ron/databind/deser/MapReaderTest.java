@@ -17,7 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 public class MapReaderTest extends ContainerTest {
 
-    public static final MapType MAP_STRING_INTEGER = TypeFactory.defaultInstance().constructMapType(Map.class, String.class, Integer.class);
+    private static final MapType MAP_STRING_INTEGER = TypeFactory.defaultInstance().constructMapType(Map.class, String.class, Integer.class);
+    private static final MapType HASHMAP_STRING_INTEGER = TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Integer.class);
 
     private static <K,V> Map<K, V> mapOf(K key, V value) {
         Map<K, V> map = new HashMap<>();
@@ -49,7 +50,7 @@ public class MapReaderTest extends ContainerTest {
     @Override
     public void testMultiple() throws IOException {
         String ron = "{\"foo\":1,\"bar\":2}";
-        Map<String, Object> map = new RONMapper().readValue(ron, MAP_STRING_INTEGER);
+        Map<String, Object> map = new RONMapper().readValue(ron, HASHMAP_STRING_INTEGER);
         assertEquals(mapOf("foo", 1, "bar", 2), map);
     }
 
