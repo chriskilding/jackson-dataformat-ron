@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Animal;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Cat;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Dog;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Jellyfish;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -32,5 +33,11 @@ public class NamedStructReaderTest extends ContainerTest {
         String ron = "Cat(happy:true,meows:2)";
         Animal cat = new RONMapper().readValue(ron, Cat.class);
         assertEquals(new Cat(true, 2), cat);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testUnknownStructName() throws IOException {
+        String ron = "Foo(a:1)";
+        Animal animal = new RONMapper().readValue(ron, Animal.class);
     }
 }

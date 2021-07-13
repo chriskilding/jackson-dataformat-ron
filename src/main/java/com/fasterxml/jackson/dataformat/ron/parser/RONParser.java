@@ -23,10 +23,6 @@ public class RONParser extends ParserBase {
 
     protected ObjectCodec _objectCodec;
 
-    /**
-     * Method called when input comes as a {@link java.io.Reader}, and buffer allocation
-     * can be done using default mechanism.
-     */
     public RONParser(IOContext ctxt, int features, Reader r, ObjectCodec codec) {
         super(ctxt, features);
         _reader = r;
@@ -194,7 +190,7 @@ public class RONParser extends ParserBase {
     }
 
     /**
-     * This method will only work if the RON input is strictly JSON-compatible.
+     * This method will only work if the RON input is JSON-compatible.
      */
     @Override
     public final JsonToken nextToken() throws IOException {

@@ -64,12 +64,12 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
 
             final Class<?> matchingSubclass = findMatchingSubclass(javaType, structName);
 
-            if (matchingSubclass != null) {
-                return buildFromStruct(matchingSubclass, ctx);
+            if (matchingSubclass == null) {
+                throw new IllegalStateException("Could not find a subclass that matches the struct name " + structName);
             }
-        }
 
-        return null;
+            return buildFromStruct(matchingSubclass, ctx);
+        }
     }
 
     @Override
