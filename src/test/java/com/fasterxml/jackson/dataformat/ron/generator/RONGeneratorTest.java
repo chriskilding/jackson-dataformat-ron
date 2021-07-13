@@ -74,4 +74,14 @@ public class RONGeneratorTest {
             generator.writeEndEnum();
         }
     }
+
+    @Test(expected = IOException.class)
+    public void testObjectFieldValueMismatch() throws IOException {
+        try (RONGenerator generator = newGenerator()) {
+            generator.writeStartObject();
+            generator.writeFieldName("foo");
+            generator.writeNumber(1);
+            generator.writeNumber(2);
+        }
+    }
 }

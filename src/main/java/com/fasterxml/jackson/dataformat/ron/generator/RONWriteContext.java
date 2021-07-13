@@ -3,7 +3,7 @@ package com.fasterxml.jackson.dataformat.ron.generator;
 import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.dataformat.ron.RONContextType;
 
-public class RONWriteContext extends JsonStreamContext {
+class RONWriteContext extends JsonStreamContext {
 
     /**
      * Indicates logical type of context.
@@ -103,7 +103,7 @@ public class RONWriteContext extends JsonStreamContext {
     }
 
     @Override
-    public JsonStreamContext getParent() {
+    public RONWriteContext getParent() {
         return _parent;
     }
 
