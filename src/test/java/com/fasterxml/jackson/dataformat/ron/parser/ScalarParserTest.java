@@ -34,6 +34,13 @@ public class ScalarParserTest extends ScalarTest {
         }
     }
 
+    @Test
+    public void testIntDefaultValue() throws IOException {
+        try (JsonParser parser = newParser("true")) {
+            assertEquals(-1, parser.nextIntValue(-1));
+        }
+    }
+
     @Override
     public void testLong() throws IOException {
         try (JsonParser parser = newParser("123")) {
@@ -41,10 +48,24 @@ public class ScalarParserTest extends ScalarTest {
         }
     }
 
+    @Test
+    public void testLongDefaultValue() throws IOException {
+        try (JsonParser parser = newParser("true")) {
+            assertEquals(-1, parser.nextLongValue(-1));
+        }
+    }
+
     @Override
     public void testFloat() throws IOException {
         try (RONParser parser = newParser("1.23")) {
             assertEquals(1.23f, parser.nextFloatValue(-1), 0.0001);
+        }
+    }
+
+    @Test
+    public void testFloatDefaultValue() throws IOException {
+        try (RONParser parser = newParser("true")) {
+            assertEquals(-1, parser.nextFloatValue(-1), 0.0001);
         }
     }
 
@@ -66,6 +87,13 @@ public class ScalarParserTest extends ScalarTest {
     public void testDouble() throws IOException {
         try (RONParser parser = newParser("1.23")) {
             assertEquals(1.23d, parser.nextDoubleValue(-1), 0.0001);
+        }
+    }
+
+    @Test
+    public void testDoubleDefaultValue() throws IOException {
+        try (RONParser parser = newParser("true")) {
+            assertEquals(-1, parser.nextDoubleValue(-1), 0.0001);
         }
     }
 

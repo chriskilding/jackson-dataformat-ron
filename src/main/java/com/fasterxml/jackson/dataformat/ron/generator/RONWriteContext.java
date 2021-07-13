@@ -8,34 +8,31 @@ class RONWriteContext extends JsonStreamContext {
     /**
      * Indicates logical type of context.
      */
-    protected RONContextType _type;
+    private final RONContextType type;
 
     /**
      * Parent context for this context; null for root context.
      */
-    protected final RONWriteContext _parent;
+    private final RONWriteContext parent;
 
     /**
      * Marker used to indicate that we just received a name, and
      * now expect a value
      */
-    protected boolean _gotName;
-
-    protected RONWriteContext _child = null;
+    private boolean gotName;
 
     /**
      * Name of the field of which value is to be parsed; only
      * used for OBJECT contexts
      */
-    protected String _currentName;
+    private String currentName;
 
-    RONWriteContext(RONContextType type, RONWriteContext parent)
-    {
+    RONWriteContext(RONContextType type, RONWriteContext parent) {
         super();
-        _type = type;
-        _parent = parent;
         _index = -1;
-        _gotName = false;
+        this.type = type;
+        this.parent = parent;
+        this.gotName = false;
     }
 
     static RONWriteContext createRootContext() {
@@ -43,91 +40,55 @@ class RONWriteContext extends JsonStreamContext {
     }
 
     public RONWriteContext createChildArrayContext() {
-        RONWriteContext ctxt = _child;
-        if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(RONContextType.ARRAY, this);
-            return ctxt;
-        }
-        ctxt.reset(RONContextType.ARRAY);
-        return ctxt;
-    }
-
-    private void reset(RONContextType type) {
-        _type = type;
-        _currentName = null;
-        _index = -1;
+        return new RONWriteContext(RONContextType.ARRAY, this);
     }
 
     public RONWriteContext createChildTupleContext() {
-        RONWriteContext ctxt = _child;
-        if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(RONContextType.TUPLE, this);
-            return ctxt;
-        }
-        ctxt.reset(RONContextType.TUPLE);
-        return ctxt;
+        return new RONWriteContext(RONContextType.TUPLE, this);
     }
 
     public RONWriteContext createChildEnumContext() {
-        RONWriteContext ctxt = _child;
-        if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(RONContextType.ENUM, this);
-            return ctxt;
-        }
-        ctxt.reset(RONContextType.ENUM);
-        return ctxt;
+        return new RONWriteContext(RONContextType.ENUM, this);
     }
 
     public RONWriteContext createChildStructContext() {
-        RONWriteContext ctxt = _child;
-        if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(RONContextType.STRUCT, this);
-            return ctxt;
-        }
-        ctxt.reset(RONContextType.STRUCT);
-        return ctxt;
+        return new RONWriteContext(RONContextType.STRUCT, this);
     }
 
     public RONWriteContext createChildObjectContext() {
-        RONWriteContext ctxt = _child;
-        if (ctxt == null) {
-            _child = ctxt = new RONWriteContext(RONContextType.OBJECT, this);
-            return ctxt;
-        }
-        ctxt.reset(RONContextType.OBJECT);
-        return ctxt;
+        return new RONWriteContext(RONContextType.OBJECT, this);
     }
 
     public RONWriteContext clearAndGetParent() {
-        return _parent;
+        currentName = null;
+        return this.getParent();
     }
 
     @Override
     public RONWriteContext getParent() {
-        return _parent;
+        return parent;
     }
 
     @Override
     public String getCurrentName() {
-        return _currentName;
+        return currentName;
     }
 
     public boolean writeName(String name) {
-        if (_gotName) {
+        if (gotName) {
             return false;
         }
-        _gotName = true;
-        _currentName = name;
+        gotName = true;
+        currentName = name;
         return true;
     }
 
     public boolean writeValue() {
-        // Most likely, object:
-        if (_type == RONContextType.OBJECT || _type == RONContextType.STRUCT) {
-            if (!_gotName) {
+        if (type == RONContextType.OBJECT || type == RONContextType.STRUCT) {
+            if (!gotName) {
                 return false;
             }
-            _gotName = false;
+            gotName = false;
         }
         // Array fine, and must allow root context for Object values too so...
         ++_index;
@@ -136,23 +97,23 @@ class RONWriteContext extends JsonStreamContext {
 
     // TODO cannot @Override inArray(); must ask jackson-core to remove final modifier
     public boolean inAnArray() {
-        return _type == RONContextType.ARRAY;
+        return type == RONContextType.ARRAY;
     }
 
     // TODO cannot @Override inObject(); must ask jackson-core to remove final modifier
     public boolean inAnObject() {
-        return _type == RONContextType.OBJECT;
+        return type == RONContextType.OBJECT;
     }
 
     public boolean inEnum() {
-        return _type == RONContextType.ENUM;
+        return type == RONContextType.ENUM;
     }
 
     public boolean inTuple() {
-        return _type == RONContextType.TUPLE;
+        return type == RONContextType.TUPLE;
     }
 
     public boolean inStruct() {
-        return _type == RONContextType.STRUCT;
+        return type == RONContextType.STRUCT;
     }
 }
