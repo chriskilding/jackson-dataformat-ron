@@ -7,8 +7,9 @@ This project is a prototype. **It is not suitable for production use**.
 ## Overview
 
 There are times when JSON is too limited to represent the concepts you need to serialize. JSON notably lacks support for
-types, enums, and tuples. In these situations, RON provides a more expressive syntax that can handle these concepts. (For a longer explanation of when and why you would want to use RON, see the upstream
-project: https://github.com/ron-rs/ron.)
+types, enums, and tuples. In these situations, RON provides a more expressive syntax that can handle these concepts.
+
+For a longer explanation of when and why you would want to use RON, see the upstream project: https://github.com/ron-rs/ron.
 
 This project is a prototype to find out whether it is feasible for RON to be a backend for Jackson, and thus allow
 developers in the JVM ecosystem to use RON.
@@ -69,17 +70,16 @@ Use the `RONGenerator`, `RONParser`, or `RONMapper` from your code as you would 
 
 ### RONGenerator
 
-To write RON constructs, call the RON-specific `writeXXX` methods on the `RONGenerator`:
+To write RON constructs, call the relevant `writeXXX` methods on the `RONGenerator`:
 
-- Enums: `writeStartEnum(String)` / `writeEndEnum()`
-- Simple enums: `writeEnum(String)`
-- Structs: `writeStartStruct()` / `writeEndStruct()`
-- Named structs: `writeStartStruct(String)` / `writeEndStruct()`
+- Enums: `writeStartEnum(String)` / `writeEnum(String)` / `writeEndEnum()`
+- Structs: `writeStartStruct()` / `writeStartStruct(String)` / `writeEndStruct()`
 - Tuples: `writeStartTuple()` / `writeEndTuple()`
 
 ```java
 public class GeneratorExample {
-    public void run() {
+    
+    void struct() {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartStruct("Person");
@@ -92,12 +92,36 @@ public class GeneratorExample {
         String s = w.toString();
         // => Person(givenName:"Joe",familyName:"Bloggs")
     }
+
+    void tuple() {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeStartTuple();
+            generator.writeString("Foo");
+            generator.writeNumber(123);
+            generator.writeEndTuple();
+        }
+        String s = w.toString();
+        // => ("Foo",123)
+    }
+
+    void enumeration() {
+        StringWriter w = new StringWriter();
+        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
+            generator.writeStartEnum("Foo");
+            generator.writeNumber(1);
+            generator.writeBoolean(true);
+            generator.writeEndEnum();
+        }
+        String s = w.toString();
+        // => Foo(1,true)
+    }
 }
 ```
 
 ### RONParser
 
-To read RON constructs, call the RON-specific `nextXXX` reader methods on the RONParser:
+To read RON constructs, call the relevant `nextXXX` reader methods on the RONParser:
 
 - `nextIdentifier()` (struct names, struct keys, enum names)
 - `nextRONToken()` (any token)
@@ -107,7 +131,7 @@ Note: `nextToken()` is provided for compatibility, but it is fragile. It only wo
 ```java
 public class ParserExample {
 
-    void parseStruct() {
+    void struct() {
         Reader ron = new StringReader("Person(givenName:\"Joe\",familyName:\"Bloggs\")");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
@@ -121,7 +145,7 @@ public class ParserExample {
         }
     }
 
-    void parseTuple() {
+    void tuple() {
         Reader ron = new StringReader("(1, true)");
 
         try (RONParser parser = new RONFactory().createParser(ron)) {
@@ -132,7 +156,7 @@ public class ParserExample {
         }
     }
     
-    void parseEnum() {
+    void enumeration() {
         Reader ron = new StringReader("Foo(1, true)");
   
         try (RONParser parser = new RONFactory().createParser(ron)) {

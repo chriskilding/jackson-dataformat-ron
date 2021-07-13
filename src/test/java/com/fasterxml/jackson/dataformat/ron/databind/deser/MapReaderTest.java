@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.dataformat.ron.databind.deser;
 
-import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Cat;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -50,5 +51,16 @@ public class MapReaderTest extends ContainerTest {
         String ron = "{\"foo\":1,\"bar\":2}";
         Map<String, Object> map = new RONMapper().readValue(ron, MAP_STRING_INTEGER);
         assertEquals(mapOf("foo", 1, "bar", 2), map);
+    }
+
+    @Test
+    public void testNestedRonEntities() throws JsonProcessingException {
+        String ron = "{\"cat\":Cat(happy:true,meows:2)}";
+
+        MapType map_string_cat = TypeFactory.defaultInstance().constructMapType(Map.class, String.class, Cat.class);
+        RONMapper mapper = new RONMapper();
+        Map<String, Cat> map = mapper.readValue(ron, map_string_cat);
+
+        assertEquals(mapOf("cat", new Cat(true, 2)), map);
     }
 }

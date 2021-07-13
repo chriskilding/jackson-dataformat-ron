@@ -3,9 +3,12 @@ package com.fasterxml.jackson.dataformat.ron.databind.ser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Cat;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,5 +36,13 @@ public class ArrayWriterTest extends ContainerTest {
         int[] array = {1, 2};
         String ron = mapper.writeValueAsString(array);
         assertEquals("[1,2]", ron);
+    }
+
+    @Test
+    public void testNestedRonEntities() throws JsonProcessingException {
+        RONMapper mapper = new RONMapper();
+        Cat[] array = {new Cat(true, 2)};
+        String ron = mapper.writeValueAsString(array);
+        assertEquals("[Cat(happy:true,meows:2)]", ron);
     }
 }

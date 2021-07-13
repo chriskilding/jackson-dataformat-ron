@@ -35,6 +35,5 @@ class RONEnumSerializer extends RONSerializer<Enum<?>> {
 
         final String name = _values.serializedValueFor(en).getValue();
         gen.writeEnum(name);
-        // TODO write child fields - but note, the standard ObjectMapper cannot do this for enums either
     }
 }

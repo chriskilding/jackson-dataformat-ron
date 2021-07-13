@@ -3,10 +3,10 @@ package com.fasterxml.jackson.dataformat.ron.databind.ser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
+import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Cat;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class MapWriterTest extends ContainerTest {
         assertEquals("{\"numberOfPages\":1}", ron);
     }
 
-    @Test
+    @Override
     public void testMultiple() throws JsonProcessingException {
         RONMapper mapper = new RONMapper();
         Map<String, Object> book = new LinkedHashMap<>();
@@ -41,4 +41,12 @@ public class MapWriterTest extends ContainerTest {
         assertEquals("{\"abridged\":true,\"numberOfPages\":1}", ron);
     }
 
+    @Test
+    public void testNestedRonEntities() throws JsonProcessingException {
+        RONMapper mapper = new RONMapper();
+        Map<String, Cat> map = new LinkedHashMap<>();
+        map.put("cat", new Cat(true, 2));
+        String ron = mapper.writeValueAsString(map);
+        assertEquals("{\"cat\":Cat(happy:true,meows:2)}", ron);
+    }
 }

@@ -11,7 +11,7 @@ tuple
    | START_TUPLE END_TUPLE
    ;
 
-// TODO support enums with child fields
+// RON enums with child fields are not currently supported
 enumeration
    : IDENTIFIER (START_TUPLE END_TUPLE)?
    ;

@@ -15,7 +15,6 @@ public class NamedStructReaderTest extends ContainerTest {
 
     @Override
     public void testEmpty() throws IOException {
-        // FIXME: deserializer currently treats this as an enum
         String ron = "Jellyfish()";
         Jellyfish struct = new RONMapper().readValue(ron, Jellyfish.class);
         assertEquals(new Jellyfish(), struct);
