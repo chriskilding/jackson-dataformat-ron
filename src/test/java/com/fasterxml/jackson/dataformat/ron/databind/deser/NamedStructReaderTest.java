@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.dataformat.ron.databind.deser;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.ron.ContainerTest;
 import com.fasterxml.jackson.dataformat.ron.databind.RONMapper;
 import com.fasterxml.jackson.dataformat.ron.databind.examples.animal.Animal;
@@ -35,7 +36,7 @@ public class NamedStructReaderTest extends ContainerTest {
         assertEquals(new Cat(true, 2), cat);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = JsonMappingException.class)
     public void testUnknownStructName() throws IOException {
         String ron = "Foo(a:1)";
         Animal animal = new RONMapper().readValue(ron, Animal.class);

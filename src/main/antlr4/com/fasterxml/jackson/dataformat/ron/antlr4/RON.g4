@@ -11,17 +11,17 @@ tuple
    | START_TUPLE END_TUPLE
    ;
 
-// RON enums with child fields are not currently supported
-enumeration
-   : IDENTIFIER (START_TUPLE END_TUPLE)?
-   ;
-
 struct
     : IDENTIFIER? START_TUPLE structEntry (',' structEntry)* ','? END_TUPLE;
 
 structEntry
     : IDENTIFIER ':' value
     ;
+
+enumeration
+   : IDENTIFIER (START_TUPLE END_TUPLE)?
+   | IDENTIFIER START_TUPLE value (',' value)* (',')? END_TUPLE
+   ;
 
 map
    : START_MAP mapEntry (',' mapEntry)* ','? END_MAP

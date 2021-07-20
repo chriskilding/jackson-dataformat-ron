@@ -1,39 +1,26 @@
 package com.fasterxml.jackson.dataformat.ron.generator;
 
-import com.fasterxml.jackson.dataformat.ron.ContainerTest;
+import com.fasterxml.jackson.dataformat.ron.EnumTest;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
 
-public class EnumGeneratorTest extends ContainerTest {
+public class EnumGeneratorTest extends EnumTest {
 
     @Override
-    public void testEmpty() throws IOException {
+    public void testSimple() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartEnum("Foo");
-            generator.writeEndEnum();
+            generator.writeEnum("Foo");
         }
-        assertEquals("Foo()", w.toString());
+        assertEquals("Foo", w.toString());
     }
 
     @Override
-    public void testOne() throws IOException {
-        StringWriter w = new StringWriter();
-        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeStartEnum("Foo");
-            generator.writeNumber(1);
-            generator.writeEndEnum();
-        }
-        assertEquals("Foo(1)", w.toString());
-    }
-
-    @Override
-    public void testMultiple() throws IOException {
+    public void testComplex() throws IOException {
         StringWriter w = new StringWriter();
         try (RONGenerator generator = new RONFactory().createGenerator(w)) {
             generator.writeStartEnum("Foo");
@@ -42,17 +29,5 @@ public class EnumGeneratorTest extends ContainerTest {
             generator.writeEndEnum();
         }
         assertEquals("Foo(1,2)", w.toString());
-    }
-
-    /**
-     * Test a simple RON enum which has no () braces.
-     */
-    @Test
-    public void testSimple() throws IOException {
-        StringWriter w = new StringWriter();
-        try (RONGenerator generator = new RONFactory().createGenerator(w)) {
-            generator.writeEnum("Foo");
-        }
-        assertEquals("Foo", w.toString());
     }
 }

@@ -25,28 +25,14 @@ The Jackson RON backend supports the following RON types:
 |Arrays|Y|Y|Y|Y|
 |Structs|Y|Y|Y|Y|
 |Enums|Y|Y|Y<sup>1</sup>|Y<sup>1</sup>|
-|Tuples|Y|Y|N<sup>2</sup>|N<sup>2</sup>|
+|Tuples|Y|Y|N|N|
 
-<small><sup>1</sup> Java enums are simple, and cannot have user-defined child fields. Therefore the ObjectMapper only supports simple RON enums without child fields.</small>
-
-<small><sup>2</sup> Java does not have a native concept of tuples. Therefore the ObjectMapper does not support them.</small>
+<small><sup>1</sup> Complex RON enums must map to a POJO with a `@RONEnum` class annotation.</small>
 
 The Jackson RON backend also supports the following RON features:
 
 - Trailing commas (parser ignores them)
 - Comments (parser ignores them)
-
-### Limits of RON support
-
-The low-level `RONParser` and `RONGenerator` support all of RON.
-
-The high-level `RONMapper` only supports the subset of RON types that have equivalents in Java's type system. This is
-to preserve the property of **round-trip compatibility**, i.e. `serialize(deserialize(x)) = x` using default
-ObjectMapper parameters.
-
-Long explanation...
-
-It would be possible to *deserialize* a RON enum `Foo(1, true)` into a POJO with a matching `Foo(int, boolean)` constructor. But the default *serialization* of a POJO is a struct. This would cause an unexpected surprise for the user when round-tripping data; put in an enum, get out a struct. Therefore it is safer to only support RON types with direct Java equivalents.
 
 ## Setup
 
@@ -127,8 +113,7 @@ To read RON constructs, call the relevant `nextXXX` reader methods on the RONPar
 
 - `nextIdentifier()` (struct names, struct keys, enum names)
 - `nextRONToken()` (any token)
-
-Note: `nextToken()` is provided for compatibility, but it is fragile. It only works if the input is constrained to the JSON subset of RON. You should generally use `nextRONToken()` instead.
+- `nextToken()` (JSON-compatible tokens - this is fragile, and you should generally use `nextRONToken()` instead)
 
 ```java
 public class ParserExample {
@@ -182,21 +167,29 @@ convention as closely as possible.
 |java.util.Map|Map|
 |Array|Array|
 |java.util.Collection|Array|
-|Enum|Enum<sup>1</sup>|
+|java.lang.Enum|Enum|
 |POJO|Struct|
+|POJO with `@RONEnum` annotation|Enum|
 
-<small><sup>1</sup> Only simple enums (without child fields) are supported.</small>
+To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`.
 
-To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`:
+**Field ordering note:** For structs and complex enums, the order of fields within the class determines the de/serialization order. In the examples below, the `public boolean abridged` field appears before `public int numberOfPages`, so the `abridged` field is read and written first.
+
+Collections, arrays, maps, and simple enums behave the same as in the `ObjectMapper`.
+
+POJOs always map to/from structs:
 
 ```java
-class MapperExample {
+class StructExample {
 
-    // A typical POJO
     static class Book {
         public boolean abridged;
         public int numberOfPages;
 
+        Book() {
+            // default constructor for Jackson
+        }
+        
         Book(boolean abridged, int numberOfPages) {
             this.abridged = abridged;
             this.numberOfPages = numberOfPages;
@@ -205,12 +198,46 @@ class MapperExample {
 
     void write() {
         Book book = new Book(true, 1);
-        String str = new RONMapper().writeValueAsString(book);
+        String ron = new RONMapper().writeValueAsString(book);
         // => Book(abridged:true,numberOfPages:1)
     }
 
     void read() {
         String ron = "Book(abridged:true,numberOfPages:1)";
+        Book book = new RONMapper().readValue(ron, Book.class);
+        // => new Book(true, 1)
+    }
+}
+```
+
+POJOs with `@RONEnum` annotations always map to/from enums:
+
+```java
+class EnumExample {
+
+    @RONEnum
+    static class Book {
+        public boolean abridged;
+        public int numberOfPages;
+
+        Book() {
+            // default constructor for Jackson
+        }
+        
+        Book(boolean abridged, int numberOfPages) {
+            this.abridged = abridged;
+            this.numberOfPages = numberOfPages;
+        }
+    }
+
+    void write() {
+        Book book = new Book(true, 1);
+        String ron = new RONMapper().writeValueAsString(book);
+        // => Book(true,1)
+    }
+
+    void read() {
+        String ron = "Book(true,1)";
         Book book = new RONMapper().readValue(ron, Book.class);
         // => new Book(true, 1)
     }

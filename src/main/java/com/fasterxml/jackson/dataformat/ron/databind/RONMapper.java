@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.ron.PackageVersion;
 import com.fasterxml.jackson.dataformat.ron.RONFactory;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONLexer;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
 import com.fasterxml.jackson.dataformat.ron.databind.deser.BeanDeserializer;
+import com.fasterxml.jackson.dataformat.ron.databind.deser.VisitorException;
 import com.fasterxml.jackson.dataformat.ron.databind.ser.RONSerializerFactory;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -58,6 +60,8 @@ public class RONMapper extends ObjectMapper {
             final BeanDeserializer bd = new BeanDeserializer(valueType, cfg);
 
             return bd.visitRoot(parser.root());
+        } catch (VisitorException e) {
+            throw JsonMappingException.from(p0, e.getMessage(), e.getCause());
         }
     }
 

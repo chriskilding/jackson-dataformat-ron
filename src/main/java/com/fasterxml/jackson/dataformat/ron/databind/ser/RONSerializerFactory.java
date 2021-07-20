@@ -23,7 +23,7 @@ public class RONSerializerFactory extends BeanSerializerFactory {
     @Override
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config, JavaType type, BeanDescription beanDesc) throws JsonMappingException {
         Class<Enum<?>> enumClass = (Class<Enum<?>>) type.getRawClass();
-        return RONEnumSerializer.construct(enumClass, config);
+        return RONSimpleEnumSerializer.construct(enumClass, config);
     }
 
     /**

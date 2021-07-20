@@ -8,9 +8,9 @@ import com.fasterxml.jackson.dataformat.ron.generator.RONGenerator;
 import java.io.IOException;
 
 /**
- * Serialize RON enums.
+ * Serialize simple Java enums.
  */
-class RONEnumSerializer extends RONSerializer<Enum<?>> {
+class RONSimpleEnumSerializer extends RONSerializer<Enum<?>> {
 
     /**
      * This map contains pre-resolved values (since there are ways
@@ -19,14 +19,14 @@ class RONEnumSerializer extends RONSerializer<Enum<?>> {
      */
     protected final EnumValues _values;
 
-    public RONEnumSerializer(EnumValues v) {
+    public RONSimpleEnumSerializer(EnumValues v) {
         _values = v;
     }
 
     @SuppressWarnings("unchecked")
-    public static RONEnumSerializer construct(Class<?> enumClass, SerializationConfig config) {
+    public static RONSimpleEnumSerializer construct(Class<?> enumClass, SerializationConfig config) {
         EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
-        return new RONEnumSerializer(v);
+        return new RONSimpleEnumSerializer(v);
     }
 
     @Override

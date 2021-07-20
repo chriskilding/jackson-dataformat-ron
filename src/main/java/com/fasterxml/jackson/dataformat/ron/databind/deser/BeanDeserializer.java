@@ -10,17 +10,19 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
-import com.fasterxml.jackson.dataformat.ron.util.Constructors;
-import com.fasterxml.jackson.dataformat.ron.util.Lists;
-import com.fasterxml.jackson.dataformat.ron.util.Strings;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONBaseVisitor;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
+import com.fasterxml.jackson.dataformat.ron.databind.RONEnum;
+import com.fasterxml.jackson.dataformat.ron.databind.deser.transformers.Deserializer;
+import com.fasterxml.jackson.dataformat.ron.databind.deser.transformers.DeserializerChain;
+import com.fasterxml.jackson.dataformat.ron.util.Constructors;
+import com.fasterxml.jackson.dataformat.ron.util.JavaTypes;
+import com.fasterxml.jackson.dataformat.ron.util.Lists;
+import com.fasterxml.jackson.dataformat.ron.util.Strings;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -30,7 +32,7 @@ import java.util.*;
  */
 public class BeanDeserializer extends RONBaseVisitor<Object> {
 
-    private final ValueVisitor valueVisitor = new ValueVisitor();
+    private final Deserializer[] deserializers = DeserializerChain.standard();
 
     private final Deque<JavaType> javaTypes;
     private final DeserializationConfig deserializationConfig;
@@ -45,30 +47,103 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     public Object visitEnumeration(RONParser.EnumerationContext ctx) {
         final JavaType javaType = javaTypes.peek();
 
-        final String name = ctx.IDENTIFIER().getText();
+        if (javaType.isEnumType()) {
+            final String name = ctx.IDENTIFIER().getText();
+            final EnumResolver resolver = EnumResolver.constructFor(deserializationConfig, javaType.getRawClass());
+            final CompactStringObjectMap lookupByName = resolver.constructLookup();
+            return lookupByName.find(name);
+        } else {
+            // we ended up here from a RONEnum annotation
+            Class<?> klass = javaType.getRawClass();
+            try {
+                final Constructor<?> ctor = Constructors.getDefaultConstructor(klass);
+                final Object newInstance = ctor.newInstance();
 
-        final EnumResolver resolver = EnumResolver.constructFor(deserializationConfig, javaType.getRawClass());
-        final CompactStringObjectMap lookupByName = resolver.constructLookup();
-        return lookupByName.find(name);
+                if (ctx != null) {
+                    checkHasName(klass, ctx.IDENTIFIER().getText());
+
+                    final Field[] klassFields = klass.getDeclaredFields();
+
+                    final int numKlassFields = klassFields.length;
+                    final int numRonEnumFields = ctx.value().size();
+
+                    if (numKlassFields != numRonEnumFields) {
+                        throw new VisitorException("RON enum had " + numRonEnumFields + " fields but the corresponding class had " + numKlassFields + " fields");
+                    }
+
+                    for (int i = 0; i < numKlassFields; ++i) {
+                        final Field field = klassFields[i];
+                        final RONParser.ValueContext value = ctx.value(i);
+
+                        final JavaType fieldType = JavaTypes.fromField(field);
+                        javaTypes.push(fieldType);
+                        final Object v = this.visitValue(value);
+                        javaTypes.pop();
+
+                        field.setAccessible(true);
+                        field.set(newInstance, v);
+                        field.setAccessible(false);
+                    }
+                }
+
+                return newInstance;
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                throw new VisitorException("Can't instantiate the class from the enum", e);
+            }
+        }
+    }
+
+    private static void checkHasName(Class<?> klass, String name) {
+        final String simpleKlassName = klass.getSimpleName();
+
+        if (!name.equals(simpleKlassName)) {
+            throw new VisitorException("RON construct " + name + " did not match the specified class name " + simpleKlassName);
+        }
     }
 
     @Override
     public Object visitStruct(RONParser.StructContext ctx) {
         final JavaType javaType = javaTypes.peek();
 
+        final Class<?> klass;
+
         if (javaType.isConcrete()) {
-            return buildFromStruct(javaType.getRawClass(), ctx);
+            klass = javaType.getRawClass();
         } else {
             final String structName = ctx.IDENTIFIER().getText();
-            // if null - we can't proceed unless we use jackson class annotations for polymorphism
 
             final Class<?> matchingSubclass = findMatchingSubclass(javaType, structName);
 
             if (matchingSubclass == null) {
-                throw new IllegalStateException("Could not find a subclass that matches the struct name " + structName);
+                throw new VisitorException("Could not find a subclass that matches the struct name " + structName);
             }
 
-            return buildFromStruct(matchingSubclass, ctx);
+            klass = matchingSubclass;
+        }
+
+        try {
+            final Constructor<?> ctor = Constructors.getDefaultConstructor(klass);
+            final Object newInstance = ctor.newInstance();
+
+            if (ctx != null) {
+                // set fields recursively - if the struct has fields
+                for (RONParser.StructEntryContext entry : ctx.structEntry()) {
+                    final String fieldName = entry.IDENTIFIER().getText();
+
+                    final Field childField = newInstance.getClass().getDeclaredField(fieldName);
+                    final JavaType childJavaType = JavaTypes.fromField(childField);
+                    javaTypes.push(childJavaType);
+                    final Object value = visitValue(entry.value());
+                    javaTypes.pop();
+                    childField.setAccessible(true);
+                    childField.set(newInstance, value);
+                    childField.setAccessible(false);
+                }
+            }
+
+            return newInstance;
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchFieldException e) {
+            throw new VisitorException("Can't instantiate the class from the struct", e);
         }
     }
 
@@ -88,7 +163,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                 try {
                     coll = (List) ctor.newInstance();
                 } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                    throw new IllegalStateException("Could not construct collection type, or no default constructor available");
+                    throw new VisitorException("Could not construct collection type, or no default constructor available");
                 }
             } else {
                 // use a default concrete collection type
@@ -118,7 +193,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
             try {
                 coll = (List) ctor.newInstance();
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException("Could not construct array");
+                throw new VisitorException("Could not construct array");
             }
 
             if (ctx != null) {
@@ -148,7 +223,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
             try {
                 map = (Map) ctor.newInstance();
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException("Could not construct collection");
+                throw new VisitorException("Could not construct collection");
             }
         } else {
             // probably Map<K, V> so choose a default subtype
@@ -188,34 +263,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
         return null;
     }
 
-    private Object buildFromStruct(Class<?> klass, RONParser.StructContext ctx) {
-        try {
-            final Constructor<?> ctor = Constructors.getDefaultConstructor(klass);
-            final Object newInstance = ctor.newInstance();
-
-            if (ctx != null) {
-                // set fields recursively - if the struct has fields
-                for (RONParser.StructEntryContext entry : ctx.structEntry()) {
-                    final String fieldName = entry.IDENTIFIER().getText();
-
-                    final Field childField = newInstance.getClass().getDeclaredField(fieldName);
-                    final Class<?> childKlass = childField.getType();
-                    JavaType childJavaType = TypeFactory.defaultInstance().constructFromCanonical(childKlass.getCanonicalName());
-                    javaTypes.push(childJavaType);
-                    final Object value = this.visitValue(entry.value());
-                    javaTypes.pop();
-                    childField.setAccessible(true);
-                    childField.set(newInstance, value);
-                    childField.setAccessible(false);
-                }
-            }
-
-            return newInstance;
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchFieldException e) {
-            throw new IllegalStateException("Can't instantiate the class from the struct", e);
-        }
-    }
-
     @Override
     public Object visitRoot(RONParser.RootContext ctx) {
         return this.visit(ctx.value());
@@ -225,36 +272,10 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
     public Object visitValue(RONParser.ValueContext ctx) {
         final JavaType javaType = javaTypes.peek();
 
-        if (javaType.isTypeOrSubTypeOf(String.class)) {
-            return valueVisitor.visitString(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(Boolean.class) || javaType.isTypeOrSubTypeOf(boolean.class)) {
-            return valueVisitor.visitBoolean(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(Double.class) || javaType.isTypeOrSubTypeOf(double.class)) {
-            return valueVisitor.visitDouble(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(Float.class) || javaType.isTypeOrSubTypeOf(float.class)) {
-            return valueVisitor.visitFloat(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(Integer.class) || javaType.isTypeOrSubTypeOf(int.class)) {
-            return valueVisitor.visitInt(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(Long.class) || javaType.isTypeOrSubTypeOf(long.class)) {
-            return valueVisitor.visitLong(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(BigInteger.class)) {
-            return valueVisitor.visitBigInteger(ctx);
-        }
-
-        if (javaType.isTypeOrSubTypeOf(BigDecimal.class)) {
-            return valueVisitor.visitBigDecimal(ctx);
+        for (Deserializer deserializer: deserializers) {
+            if (deserializer.canApply(javaType)) {
+                return deserializer.apply(ctx);
+            }
         }
 
         if (javaType.isMapLikeType()) {
@@ -267,6 +288,14 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
 
         if (javaType.isEnumType()) {
             return this.visitEnumeration(ctx.enumeration());
+        }
+
+        if (javaType.getRawClass().isAnnotationPresent(RONEnum.class)) {
+            return this.visitEnumeration(ctx.enumeration());
+        }
+
+        if (ctx.enumeration() != null && !ctx.enumeration().value().isEmpty()) {
+            throw new VisitorException("Could not map the RON enum to the target class. Please ensure that the target class has the @RONEnum annotation.");
         }
 
         return this.visitStruct(ctx.struct());
