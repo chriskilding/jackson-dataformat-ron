@@ -13,7 +13,7 @@ public final class Constructors {
      * @return the default constructor for the klass, or null if there isn't one
      */
     public static Constructor<?> getDefaultConstructor(Class<?> klass) {
-        for (Constructor<?> ctor: klass.getDeclaredConstructors()) {
+        for (Constructor<?> ctor: klass.getConstructors()) {
             if (isDefaultConstructor(ctor)) {
                 return ctor;
             }

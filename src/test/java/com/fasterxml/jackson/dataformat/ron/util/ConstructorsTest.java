@@ -23,11 +23,11 @@ public class ConstructorsTest {
         assertNull(ctor);
     }
 
-    static class Empty {
+    public static class Empty {
         // implicit default constructor
     }
 
-    static class NoDefaultConstructor {
+    public static class NoDefaultConstructor {
 
         private final int foo;
 

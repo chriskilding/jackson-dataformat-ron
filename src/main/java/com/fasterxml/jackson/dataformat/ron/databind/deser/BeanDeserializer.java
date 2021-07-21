@@ -62,7 +62,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                 if (ctx != null) {
                     checkHasName(klass, ctx.IDENTIFIER().getText());
 
-                    final Field[] klassFields = klass.getDeclaredFields();
+                    final Field[] klassFields = klass.getFields();
 
                     final int numKlassFields = klassFields.length;
                     final int numRonEnumFields = ctx.value().size();
@@ -144,7 +144,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                 for (RONParser.StructEntryContext entry : ctx.structEntry()) {
                     final String fieldName = entry.IDENTIFIER().getText();
 
-                    final Field childField = newInstance.getClass().getDeclaredField(fieldName);
+                    final Field childField = newInstance.getClass().getField(fieldName);
                     final JavaType childJavaType = JavaTypes.fromField(childField);
                     javaTypes.push(childJavaType);
                     final Object value = visitValue(entry.value());
