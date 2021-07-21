@@ -68,7 +68,8 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                     final int numRonEnumFields = ctx.value().size();
 
                     if (numKlassFields != numRonEnumFields) {
-                        throw new VisitorException("RON enum had " + numRonEnumFields + " fields but the corresponding class had " + numKlassFields + " fields");
+                        final String klassFieldNames = getFieldNames(klassFields);
+                        throw new VisitorException("RON enum had " + numRonEnumFields + " fields, but the corresponding class had " + numKlassFields + " fields " + klassFieldNames);
                     }
 
                     for (int i = 0; i < numKlassFields; ++i) {
@@ -91,6 +92,19 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                 throw new VisitorException("Can't instantiate the class from the enum", e);
             }
         }
+    }
+
+    private static String getFieldNames(Field[] fields) {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("(");
+        for (Field field: fields) {
+            sb.append(field.getName());
+            sb.append(",");
+        }
+        sb.append(")");
+
+        return sb.toString();
     }
 
     private static void checkHasName(Class<?> klass, String name) {
