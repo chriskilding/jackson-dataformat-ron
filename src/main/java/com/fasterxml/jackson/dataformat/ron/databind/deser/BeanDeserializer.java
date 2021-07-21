@@ -13,12 +13,9 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONBaseVisitor;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
 import com.fasterxml.jackson.dataformat.ron.databind.RONEnum;
-import com.fasterxml.jackson.dataformat.ron.databind.deser.transformers.Deserializer;
-import com.fasterxml.jackson.dataformat.ron.databind.deser.transformers.DeserializerChain;
-import com.fasterxml.jackson.dataformat.ron.util.Constructors;
-import com.fasterxml.jackson.dataformat.ron.util.JavaTypes;
-import com.fasterxml.jackson.dataformat.ron.util.Lists;
-import com.fasterxml.jackson.dataformat.ron.util.Strings;
+import com.fasterxml.jackson.dataformat.ron.databind.deser.chain.Deserializer;
+import com.fasterxml.jackson.dataformat.ron.databind.deser.chain.DeserializerChain;
+import com.fasterxml.jackson.dataformat.ron.util.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -65,11 +62,11 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                     final Field[] klassFields = klass.getFields();
 
                     final int numKlassFields = klassFields.length;
-                    final int numRonEnumFields = ctx.value().size();
+                    final int numEnumFields = ctx.value().size();
 
-                    if (numKlassFields != numRonEnumFields) {
-                        final String klassFieldNames = getFieldNames(klassFields);
-                        throw new VisitorException("RON enum had " + numRonEnumFields + " fields, but the corresponding class had " + numKlassFields + " fields " + klassFieldNames);
+                    if (numKlassFields != numEnumFields) {
+                        final String klassFieldNames = Fields.print(klassFields);
+                        throw new VisitorException("RON enum had " + numEnumFields + " fields, but the corresponding class had " + numKlassFields + " fields " + klassFieldNames);
                     }
 
                     for (int i = 0; i < numKlassFields; ++i) {
@@ -81,9 +78,7 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                         final Object v = this.visitValue(value);
                         javaTypes.pop();
 
-                        field.setAccessible(true);
-                        field.set(newInstance, v);
-                        field.setAccessible(false);
+                        Fields.setSuppressingAccessChecks(field, newInstance, v);
                     }
                 }
 
@@ -92,19 +87,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                 throw new VisitorException("Can't instantiate the class from the enum", e);
             }
         }
-    }
-
-    private static String getFieldNames(Field[] fields) {
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append("(");
-        for (Field field: fields) {
-            sb.append(field.getName());
-            sb.append(",");
-        }
-        sb.append(")");
-
-        return sb.toString();
     }
 
     private static void checkHasName(Class<?> klass, String name) {
@@ -140,7 +122,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
             final Object newInstance = ctor.newInstance();
 
             if (ctx != null) {
-                // set fields recursively - if the struct has fields
                 for (RONParser.StructEntryContext entry : ctx.structEntry()) {
                     final String fieldName = entry.IDENTIFIER().getText();
 
@@ -149,9 +130,8 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
                     javaTypes.push(childJavaType);
                     final Object value = visitValue(entry.value());
                     javaTypes.pop();
-                    childField.setAccessible(true);
-                    childField.set(newInstance, value);
-                    childField.setAccessible(false);
+
+                    Fields.setSuppressingAccessChecks(childField, newInstance, value);
                 }
             }
 
@@ -171,7 +151,6 @@ public class BeanDeserializer extends RONBaseVisitor<Object> {
             final List coll;
 
             if (javaType.isConcrete()) {
-                // TODO might be null
                 final Constructor<?> ctor = Constructors.getDefaultConstructor(javaType.getRawClass());
 
                 try {

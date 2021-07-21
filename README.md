@@ -159,8 +159,7 @@ public class ParserExample {
 
 ### RONMapper
 
-In Rust, serialization is driven strongly by convention: objects are mapped to their closest RON types. We follow this
-convention as closely as possible.
+To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`.
 
 | Java Type | RON Type |
 --- | ---
@@ -171,26 +170,24 @@ convention as closely as possible.
 |POJO|Struct|
 |POJO with `@RONEnum` annotation|Enum|
 
-To read or write an object, just use the `RONMapper` like you would use the `ObjectMapper`.
+**Field ordering:** For structs and complex enums, the order of fields within the class determines the de/serialization order. In the examples below, the `public boolean abridged` field appears before `public int numberOfPages`, so the `abridged` field is read and written first.
 
-**Field ordering note:** For structs and complex enums, the order of fields within the class determines the de/serialization order. In the examples below, the `public boolean abridged` field appears before `public int numberOfPages`, so the `abridged` field is read and written first.
-
-Collections, arrays, maps, and simple enums behave the same as in the `ObjectMapper`.
+**Missing fields:** If a field is missing in a RON struct, the deserialized POJO field value will be null. If a field is null in a POJO, the serialized RON struct will omit that field entirely.
 
 POJOs always map to/from structs:
 
 ```java
 class StructExample {
 
-    static class Book {
+    public static class Book {
         public boolean abridged;
         public int numberOfPages;
 
-        Book() {
+        public Book() {
             // default constructor for Jackson
         }
         
-        Book(boolean abridged, int numberOfPages) {
+        public Book(boolean abridged, int numberOfPages) {
             this.abridged = abridged;
             this.numberOfPages = numberOfPages;
         }
@@ -216,15 +213,15 @@ POJOs with `@RONEnum` annotations always map to/from enums:
 class EnumExample {
 
     @RONEnum
-    static class Book {
+    public static class Book {
         public boolean abridged;
         public int numberOfPages;
 
-        Book() {
+        public Book() {
             // default constructor for Jackson
         }
         
-        Book(boolean abridged, int numberOfPages) {
+        public Book(boolean abridged, int numberOfPages) {
             this.abridged = abridged;
             this.numberOfPages = numberOfPages;
         }

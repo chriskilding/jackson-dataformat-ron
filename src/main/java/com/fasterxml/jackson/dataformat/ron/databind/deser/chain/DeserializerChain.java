@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.ron.databind.deser.transformers;
+package com.fasterxml.jackson.dataformat.ron.databind.deser.chain;
 
 public class DeserializerChain {
 

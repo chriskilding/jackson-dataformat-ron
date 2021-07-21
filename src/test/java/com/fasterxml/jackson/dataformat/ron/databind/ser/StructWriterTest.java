@@ -42,4 +42,11 @@ public class StructWriterTest extends ContainerTest {
         String ron = new RONMapper().writeValueAsString(n);
         assertEquals("Nested(a:1,b:B(c:2))", ron);
     }
+
+    @Test
+    public void testNullFieldsNotSerialized() throws IOException {
+        Nested n = new Nested(1, null);
+        String ron = new RONMapper().writeValueAsString(n);
+        assertEquals("Nested(a:1)", ron);
+    }
 }

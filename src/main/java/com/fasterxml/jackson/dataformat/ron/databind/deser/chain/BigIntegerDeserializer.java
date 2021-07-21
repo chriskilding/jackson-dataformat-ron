@@ -1,19 +1,19 @@
-package com.fasterxml.jackson.dataformat.ron.databind.deser.transformers;
+package com.fasterxml.jackson.dataformat.ron.databind.deser.chain;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.ron.antlr4.RONParser;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 
-class BigDecimalDeserializer implements Deserializer {
+class BigIntegerDeserializer implements Deserializer {
     @Override
     public boolean canApply(JavaType javaType) {
-        return javaType.isTypeOrSubTypeOf(BigDecimal.class);
+        return javaType.isTypeOrSubTypeOf(BigInteger.class);
     }
 
     @Override
     public Object apply(RONParser.ValueContext ctx) {
         final String num = ctx.NUMBER().getText();
-        return new BigDecimal(num);
+        return new BigInteger(num);
     }
 }

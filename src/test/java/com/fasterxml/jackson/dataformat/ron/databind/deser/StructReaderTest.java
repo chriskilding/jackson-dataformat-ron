@@ -42,4 +42,11 @@ public class StructReaderTest extends ContainerTest {
         assertEquals(new Nested(1, new B(2)), struct);
     }
 
+    @Test
+    public void testMissingFieldsNotDeserialized() throws IOException {
+        String ron = "(a:1)";
+        Nested struct = new RONMapper().readValue(ron, Nested.class);
+        assertEquals(new Nested(1, null), struct);
+    }
+
 }
