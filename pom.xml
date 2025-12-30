@@ -23,7 +23,7 @@
         <!-- Generate PackageVersion.java into this directory. -->
         <packageVersion.dir>com/fasterxml/jackson/dataformat/ron</packageVersion.dir>
         <packageVersion.package>${project.groupId}.ron</packageVersion.package>
-        <antlr.version>4.9.3</antlr.version>
+        <antlr.version>4.13.2</antlr.version>
     </properties>
 
     <dependencies>
